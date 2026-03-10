@@ -37,8 +37,8 @@ FROM node:20-slim AS production
 
 RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
-# Security: run as non-root
-RUN groupadd --system appgroup && useradd --system --gid appgroup appuser
+# Security: run as non-root (with home dir so npx/pnpm work)
+RUN groupadd --system appgroup && useradd --system --gid appgroup --create-home appuser
 
 WORKDIR /app
 
