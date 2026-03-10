@@ -46,6 +46,18 @@ pnpm format
 
 ## Changelog
 
+### v0.9.0 — Stage 9: Hardening
+- React ErrorBoundary component with friendly error UI and reload button
+- ErrorState reusable component for error display with optional retry
+- OfflineBanner component showing yellow alert when offline
+- Settings page with real sync status, last synced time, pending changes, manual sync button
+- App wrapped with ErrorBoundary and OfflineBanner
+- Backend tests: AuthService (6 tests — login flows, register, duplicate email)
+- Backend tests: SyncService (8 tests — push authorization, idempotency, pull pagination)
+- Shared validation tests: 32 tests across login, workspace, account, transaction, sync schemas
+- All 46 tests passing across 3 test suites
+- passWithNoTests flag for packages without test files
+
 ### v0.8.0 — Stage 8: Docker & CI
 - Multi-stage API Dockerfile (install → build → production with non-root user)
 - Multi-stage Web Dockerfile (install → build → Caddy-based static serving)
