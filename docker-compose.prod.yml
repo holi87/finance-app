@@ -1,3 +1,10 @@
+# Production deployment compose file
+# Run from repo root: docker compose -f docker-compose.prod.yml --env-file .env up -d --build
+#
+# This file is designed for single-server deployment (e.g., Mac Mini).
+# Caddy runs HTTP-only on a configurable port. Use an external reverse proxy
+# (nginx, Caddy, Cloudflare tunnel) for TLS termination if needed.
+
 services:
   # ---------- PostgreSQL ----------
   postgres:
@@ -21,7 +28,7 @@ services:
   # ---------- API (NestJS) ----------
   api:
     build:
-      context: ../../../
+      context: .
       dockerfile: infra/docker/api.Dockerfile
     restart: unless-stopped
     environment:
@@ -29,7 +36,7 @@ services:
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?Set JWT_ACCESS_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?Set JWT_REFRESH_SECRET}
       APP_PORT: 3000
-      APP_BASE_URL: ${APP_BASE_URL:-https://budget.local}
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:8620}
       NODE_ENV: production
     depends_on:
       postgres:
@@ -46,7 +53,7 @@ services:
   # ---------- Web (React PWA) ----------
   web:
     build:
-      context: ../../../
+      context: .
       dockerfile: infra/docker/web.Dockerfile
     restart: unless-stopped
     networks:
@@ -63,13 +70,9 @@ services:
     image: caddy:2-alpine
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    environment:
-      DOMAIN: ${DOMAIN:-budget.local}
+      - "${APP_PORT:-8620}:80"
     volumes:
-      - ../caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./infra/docker/caddy/Caddyfile.prod:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
     depends_on:

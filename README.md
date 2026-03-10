@@ -44,7 +44,38 @@ pnpm typecheck
 pnpm format
 ```
 
+## Production Deployment
+
+The simplest deployment uses the root-level `docker-compose.prod.yml`:
+
+```bash
+# 1. Clone the repo on your server
+git clone <repo-url> budget-tracker && cd budget-tracker
+
+# 2. Create .env from template and edit secrets
+cp .env.example .env
+# Edit .env: set POSTGRES_PASSWORD, JWT secrets, APP_BASE_URL, APP_PORT
+
+# 3. Build and start
+docker compose -f docker-compose.prod.yml --env-file .env up -d --build
+
+# 4. Run database migrations
+docker compose -f docker-compose.prod.yml exec api npx prisma migrate deploy --schema=apps/api/prisma/schema.prisma
+
+# 5. (Optional) Seed database
+docker compose -f docker-compose.prod.yml exec api node apps/api/dist/prisma/seed.js
+```
+
+The app will be available on the port set by `APP_PORT` in `.env` (default: 8620).
+
 ## Changelog
+
+### v0.9.1 — Deployment fixes
+- Fixed docker-compose context path (was `../../`, corrected to `../../../`)
+- Added root-level `docker-compose.prod.yml` for simpler deployment (no relative path issues)
+- Added `Caddyfile.prod` for HTTP-only deployment (port-based, no TLS)
+- Production compose uses configurable `APP_PORT` env var (default: 8620)
+- Added deployment instructions to README
 
 ### v0.9.0 — Stage 9: Hardening
 - React ErrorBoundary component with friendly error UI and reload button

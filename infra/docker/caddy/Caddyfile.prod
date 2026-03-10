@@ -1,0 +1,30 @@
+# Production Caddyfile — HTTP only (port 80 inside container)
+# TLS termination is handled by external reverse proxy if needed.
+:80 {
+    # Security headers
+    header {
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+
+    # Gzip compression
+    encode gzip
+
+    # API routes -> backend service
+    handle /api/* {
+        reverse_proxy api:3000
+    }
+
+    # All other routes -> frontend service
+    handle {
+        reverse_proxy web:80
+    }
+
+    # Health endpoint for the proxy itself
+    handle /health {
+        respond "OK" 200
+    }
+}
