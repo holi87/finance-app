@@ -1,0 +1,341 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ──────────────────────────────────────────────
+// Users & Devices
+// ──────────────────────────────────────────────
+
+model User {
+  id           String    @id @default(uuid()) @db.Uuid
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  displayName  String    @map("display_name")
+  isActive     Boolean   @default(true) @map("is_active")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  lastLoginAt  DateTime? @map("last_login_at") @db.Timestamptz
+
+  devices              Device[]
+  ownedWorkspaces      Workspace[]    @relation("WorkspaceOwner")
+  memberships          Membership[]
+  invitedMemberships   Membership[]   @relation("InvitedBy")
+  transactions         Transaction[]  @relation("CreatedBy")
+  syncChanges          SyncChange[]
+  syncCursors          SyncCursor[]
+  refreshTokens        RefreshToken[]
+
+  @@map("users")
+}
+
+model Device {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  deviceName String    @map("device_name")
+  platform   String
+  lastSeenAt DateTime? @map("last_seen_at") @db.Timestamptz
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  user                  User                   @relation(fields: [userId], references: [id])
+  syncOperationReceipts SyncOperationReceipt[]
+  syncCursors           SyncCursor[]
+
+  @@map("devices")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  token     String   @unique
+  expiresAt DateTime @map("expires_at") @db.Timestamptz
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  revokedAt DateTime? @map("revoked_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("refresh_tokens")
+}
+
+// ──────────────────────────────────────────────
+// Workspaces & Memberships
+// ──────────────────────────────────────────────
+
+model Workspace {
+  id           String    @id @default(uuid()) @db.Uuid
+  name         String
+  slug         String
+  type         String
+  baseCurrency String    @map("base_currency") @db.Char(3)
+  ownerId      String    @map("owner_id") @db.Uuid
+  archivedAt   DateTime? @map("archived_at") @db.Timestamptz
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  owner         User           @relation("WorkspaceOwner", fields: [ownerId], references: [id])
+  memberships   Membership[]
+  accounts      Account[]
+  categories    Category[]
+  transactions  Transaction[]
+  transferLinks TransferLink[]
+  budgetPeriods BudgetPeriod[]
+  budgetLimits  BudgetLimit[]
+  tags          Tag[]
+  syncChanges   SyncChange[]
+  syncOperationReceipts SyncOperationReceipt[]
+  syncCursors   SyncCursor[]
+
+  @@unique([ownerId, slug])
+  @@map("workspaces")
+}
+
+model Membership {
+  id          String   @id @default(uuid()) @db.Uuid
+  workspaceId String   @map("workspace_id") @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  role        String
+  invitedBy   String?  @map("invited_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  workspace    Workspace @relation(fields: [workspaceId], references: [id])
+  user         User      @relation(fields: [userId], references: [id])
+  invitedByUser User?    @relation("InvitedBy", fields: [invitedBy], references: [id])
+
+  @@unique([workspaceId, userId])
+  @@index([userId], name: "idx_memberships_user")
+  @@index([workspaceId], name: "idx_memberships_workspace")
+  @@map("memberships")
+}
+
+// ──────────────────────────────────────────────
+// Financial Entities
+// ──────────────────────────────────────────────
+
+model Account {
+  id                  String    @id @default(uuid()) @db.Uuid
+  workspaceId         String    @map("workspace_id") @db.Uuid
+  name                String
+  type                String
+  currency            String    @db.Char(3)
+  openingBalance      Decimal   @default(0) @map("opening_balance") @db.Decimal(18, 2)
+  currentBalanceCached Decimal  @default(0) @map("current_balance_cached") @db.Decimal(18, 2)
+  isArchived          Boolean   @default(false) @map("is_archived")
+  version             Int       @default(1)
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt           DateTime? @map("deleted_at") @db.Timestamptz
+
+  workspace    Workspace     @relation(fields: [workspaceId], references: [id])
+  transactions Transaction[]
+
+  @@index([workspaceId, isArchived], name: "idx_accounts_workspace_archived")
+  @@index([workspaceId, deletedAt], name: "idx_accounts_workspace_deleted")
+  @@map("accounts")
+}
+
+model Category {
+  id               String    @id @default(uuid()) @db.Uuid
+  workspaceId      String    @map("workspace_id") @db.Uuid
+  parentCategoryId String?   @map("parent_category_id") @db.Uuid
+  name             String
+  kind             String
+  color            String?
+  icon             String?
+  isArchived       Boolean   @default(false) @map("is_archived")
+  version          Int       @default(1)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt        DateTime? @map("deleted_at") @db.Timestamptz
+
+  workspace      Workspace     @relation(fields: [workspaceId], references: [id])
+  parent         Category?     @relation("CategoryParent", fields: [parentCategoryId], references: [id])
+  children       Category[]    @relation("CategoryParent")
+  transactions   Transaction[]
+  budgetLimits   BudgetLimit[]
+
+  @@index([workspaceId, kind], name: "idx_categories_workspace_kind")
+  @@index([workspaceId, deletedAt], name: "idx_categories_workspace_deleted")
+  @@map("categories")
+}
+
+model Transaction {
+  id              String    @id @default(uuid()) @db.Uuid
+  workspaceId     String    @map("workspace_id") @db.Uuid
+  accountId       String    @map("account_id") @db.Uuid
+  categoryId      String?   @map("category_id") @db.Uuid
+  type            String
+  amount          Decimal   @db.Decimal(18, 2)
+  currency        String    @db.Char(3)
+  description     String?
+  notes           String?
+  transactionDate DateTime  @map("transaction_date") @db.Date
+  createdBy       String    @map("created_by") @db.Uuid
+  version         Int       @default(1)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz
+
+  workspace               Workspace       @relation(fields: [workspaceId], references: [id])
+  account                 Account         @relation(fields: [accountId], references: [id])
+  category                Category?       @relation(fields: [categoryId], references: [id])
+  creator                 User            @relation("CreatedBy", fields: [createdBy], references: [id])
+  outboundTransferLinks   TransferLink[]  @relation("OutboundTransaction")
+  inboundTransferLinks    TransferLink[]  @relation("InboundTransaction")
+  transactionTags         TransactionTag[]
+
+  @@index([workspaceId, transactionDate(sort: Desc)], name: "idx_txn_workspace_date")
+  @@index([workspaceId, accountId], name: "idx_txn_workspace_account")
+  @@index([workspaceId, categoryId], name: "idx_txn_workspace_category")
+  @@index([workspaceId, deletedAt], name: "idx_txn_workspace_deleted")
+  @@index([workspaceId, updatedAt], name: "idx_txn_workspace_updated")
+  @@map("transactions")
+}
+
+model TransferLink {
+  id                     String   @id @default(uuid()) @db.Uuid
+  workspaceId            String   @map("workspace_id") @db.Uuid
+  outboundTransactionId  String   @map("outbound_transaction_id") @db.Uuid
+  inboundTransactionId   String   @map("inbound_transaction_id") @db.Uuid
+  createdAt              DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  workspace              Workspace   @relation(fields: [workspaceId], references: [id])
+  outboundTransaction    Transaction @relation("OutboundTransaction", fields: [outboundTransactionId], references: [id])
+  inboundTransaction     Transaction @relation("InboundTransaction", fields: [inboundTransactionId], references: [id])
+
+  @@map("transfer_links")
+}
+
+// ──────────────────────────────────────────────
+// Budgets
+// ──────────────────────────────────────────────
+
+model BudgetPeriod {
+  id          String   @id @default(uuid()) @db.Uuid
+  workspaceId String   @map("workspace_id") @db.Uuid
+  periodType  String   @map("period_type")
+  startsAt    DateTime @map("starts_at") @db.Date
+  endsAt      DateTime @map("ends_at") @db.Date
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  workspace    Workspace     @relation(fields: [workspaceId], references: [id])
+  budgetLimits BudgetLimit[]
+
+  @@map("budget_periods")
+}
+
+model BudgetLimit {
+  id             String    @id @default(uuid()) @db.Uuid
+  workspaceId    String    @map("workspace_id") @db.Uuid
+  budgetPeriodId String    @map("budget_period_id") @db.Uuid
+  categoryId     String    @map("category_id") @db.Uuid
+  amount         Decimal   @db.Decimal(18, 2)
+  currency       String    @db.Char(3)
+  version        Int       @default(1)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz
+
+  workspace    Workspace    @relation(fields: [workspaceId], references: [id])
+  budgetPeriod BudgetPeriod @relation(fields: [budgetPeriodId], references: [id])
+  category     Category     @relation(fields: [categoryId], references: [id])
+
+  @@unique([workspaceId, budgetPeriodId, categoryId])
+  @@index([workspaceId, budgetPeriodId], name: "idx_budget_limits_workspace_period")
+  @@map("budget_limits")
+}
+
+// ──────────────────────────────────────────────
+// Tags
+// ──────────────────────────────────────────────
+
+model Tag {
+  id          String    @id @default(uuid()) @db.Uuid
+  workspaceId String    @map("workspace_id") @db.Uuid
+  name        String
+  color       String?
+  version     Int       @default(1)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz
+
+  workspace       Workspace        @relation(fields: [workspaceId], references: [id])
+  transactionTags TransactionTag[]
+
+  @@map("tags")
+}
+
+model TransactionTag {
+  transactionId String @map("transaction_id") @db.Uuid
+  tagId         String @map("tag_id") @db.Uuid
+
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+  tag         Tag         @relation(fields: [tagId], references: [id])
+
+  @@id([transactionId, tagId])
+  @@map("transaction_tags")
+}
+
+// ──────────────────────────────────────────────
+// Sync
+// ──────────────────────────────────────────────
+
+model SyncChange {
+  id              BigInt    @id @default(autoincrement())
+  workspaceId     String    @map("workspace_id") @db.Uuid
+  entityType      String    @map("entity_type")
+  entityId        String    @map("entity_id") @db.Uuid
+  operationType   String    @map("operation_type")
+  entityVersion   Int       @map("entity_version")
+  changedBy       String?   @map("changed_by") @db.Uuid
+  changedAt       DateTime  @default(now()) @map("changed_at") @db.Timestamptz
+  payloadSnapshot Json?     @map("payload_snapshot") @db.JsonB
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  changedByUser User?  @relation(fields: [changedBy], references: [id])
+
+  @@index([workspaceId], name: "idx_sync_changes_workspace_id")
+  @@index([workspaceId, changedAt], name: "idx_sync_changes_workspace_changed")
+  @@index([entityType, entityId], name: "idx_sync_changes_entity")
+  @@map("sync_changes")
+}
+
+model SyncOperationReceipt {
+  id            BigInt   @id @default(autoincrement())
+  operationId   String   @map("operation_id")
+  deviceId      String   @map("device_id") @db.Uuid
+  workspaceId   String   @map("workspace_id") @db.Uuid
+  entityType    String   @map("entity_type")
+  entityId      String   @map("entity_id") @db.Uuid
+  operationType String   @map("operation_type")
+  processedAt   DateTime @default(now()) @map("processed_at") @db.Timestamptz
+  resultStatus  String   @map("result_status")
+
+  device    Device    @relation(fields: [deviceId], references: [id])
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@unique([operationId, deviceId])
+  @@map("sync_operation_receipts")
+}
+
+model SyncCursor {
+  id                 String   @id @default(uuid()) @db.Uuid
+  userId             String   @map("user_id") @db.Uuid
+  deviceId           String   @map("device_id") @db.Uuid
+  workspaceId        String   @map("workspace_id") @db.Uuid
+  lastPulledChangeId BigInt   @default(0) @map("last_pulled_change_id")
+  updatedAt          DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  user      User      @relation(fields: [userId], references: [id])
+  device    Device    @relation(fields: [deviceId], references: [id])
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@unique([userId, deviceId, workspaceId])
+  @@map("sync_cursors")
+}

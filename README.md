@@ -46,6 +46,14 @@ pnpm format
 
 ## Changelog
 
+### v0.2.0 — Stage 2: Backend Foundation
+- NestJS application with ConfigModule, global exception filter, validation pipe
+- Prisma schema with full database model (15 tables, indexes, constraints)
+- PrismaService with lifecycle management
+- Health endpoint (`GET /api/v1/health`)
+- Module stubs for all domain modules (auth, users, workspaces, memberships, accounts, categories, transactions, budgets, reports, sync)
+- CORS configuration, request logging
+
 ### v0.1.0 — Stage 1: Repository Foundation
 - pnpm monorepo with workspace configuration
 - Shared TypeScript config (strict mode)
