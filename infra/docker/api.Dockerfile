@@ -32,11 +32,6 @@ RUN pnpm --filter @budget-tracker/shared-types run build 2>/dev/null || true
 RUN pnpm --filter @budget-tracker/shared-validation run build 2>/dev/null || true
 RUN pnpm --filter @budget-tracker/api run build
 
-# Stage Prisma client to a known location (pnpm puts it in various places)
-RUN mkdir -p /prisma-client && \
-    find /app/node_modules -path "*/.prisma/client" -type d | head -1 | \
-    xargs -I{} cp -r {} /prisma-client/client
-
 # ---- Production stage ----
 FROM node:20-slim AS production
 
@@ -56,15 +51,15 @@ COPY packages/sync-engine/package.json packages/sync-engine/
 COPY packages/ui/package.json packages/ui/
 COPY packages/config/package.json packages/config/
 
-# Install production dependencies only
-RUN pnpm install --frozen-lockfile --prod
+# Install all dependencies (prisma generate needs the CLI in pnpm store)
+RUN pnpm install --frozen-lockfile
 
-# Copy built output and prisma schema
-COPY --from=build /app/apps/api/dist apps/api/dist
+# Copy prisma schema and generate client in the correct pnpm location
 COPY --from=build /app/apps/api/prisma apps/api/prisma
+RUN pnpm --filter @budget-tracker/api run prisma:generate
 
-# Copy Prisma client from staged location
-COPY --from=build /prisma-client/client node_modules/.prisma/client
+# Copy built output
+COPY --from=build /app/apps/api/dist apps/api/dist
 
 USER appuser
 
