@@ -21,11 +21,15 @@ export class TransactionsController {
       accountId?: string;
       categoryId?: string;
       type?: string;
-      page?: number;
-      pageSize?: number;
+      page?: string;
+      pageSize?: string;
     },
   ) {
-    return this.transactionsService.findAll(workspaceId, query);
+    return this.transactionsService.findAll(workspaceId, {
+      ...query,
+      page: query.page ? parseInt(query.page, 10) : undefined,
+      pageSize: query.pageSize ? parseInt(query.pageSize, 10) : undefined,
+    });
   }
 
   @Get(':transactionId')
