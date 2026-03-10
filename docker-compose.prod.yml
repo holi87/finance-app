@@ -1,9 +1,10 @@
-# Production deployment compose file
-# Run from repo root: docker compose -f docker-compose.prod.yml --env-file .env up -d --build
+# Production deployment — pulls pre-built images from GitHub Container Registry
 #
-# This file is designed for single-server deployment (e.g., Mac Mini).
-# Caddy runs HTTP-only on a configurable port. Use an external reverse proxy
-# (nginx, Caddy, Cloudflare tunnel) for TLS termination if needed.
+# Usage on server:
+#   1. Log in to ghcr.io:  echo $GHCR_TOKEN | docker login ghcr.io -u USERNAME --password-stdin
+#   2. Create .env file with required variables (see .env.example)
+#   3. Start:  docker compose -f docker-compose.prod.yml --env-file .env up -d
+#   4. Update: docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml --env-file .env up -d
 
 services:
   # ---------- PostgreSQL ----------
@@ -27,9 +28,7 @@ services:
 
   # ---------- API (NestJS) ----------
   api:
-    build:
-      context: .
-      dockerfile: infra/docker/api.Dockerfile
+    image: ghcr.io/holi87/finance-app/api:latest
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-budget_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-budget_tracker}
@@ -52,9 +51,7 @@ services:
 
   # ---------- Web (React PWA) ----------
   web:
-    build:
-      context: .
-      dockerfile: infra/docker/web.Dockerfile
+    image: ghcr.io/holi87/finance-app/web:latest
     restart: unless-stopped
     networks:
       - internal
@@ -72,7 +69,7 @@ services:
     ports:
       - "${APP_PORT:-8620}:80"
     volumes:
-      - ./infra/docker/caddy/Caddyfile.prod:/etc/caddy/Caddyfile:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
     depends_on:

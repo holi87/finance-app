@@ -46,36 +46,57 @@ pnpm format
 
 ## Production Deployment
 
-The simplest deployment uses the root-level `docker-compose.prod.yml`:
+Images are built by GitHub Actions and pushed to GitHub Container Registry (`ghcr.io`).
+On the server you only need 3 files: `docker-compose.prod.yml`, `Caddyfile`, and `.env`.
 
 ```bash
-# 1. Clone the repo on your server
-git clone <repo-url> budget-tracker && cd budget-tracker
+# 1. Create a deployment directory
+mkdir -p ~/srv/web/kasa && cd ~/srv/web/kasa
 
-# 2. Create .env from template and edit secrets
-cp .env.example .env
-# Edit .env: set POSTGRES_PASSWORD, JWT secrets, APP_BASE_URL, APP_PORT
+# 2. Download compose and Caddyfile from the repo (or copy them manually)
+curl -O https://raw.githubusercontent.com/holi87/finance-app/main/docker-compose.prod.yml
+curl -O https://raw.githubusercontent.com/holi87/finance-app/main/infra/docker/caddy/Caddyfile.prod
+mv Caddyfile.prod Caddyfile
 
-# 3. Build and start
-docker compose -f docker-compose.prod.yml --env-file .env up -d --build
+# 3. Create .env with your secrets
+cat > .env << 'EOF'
+POSTGRES_USER=budget_user
+POSTGRES_PASSWORD=<strong-password>
+POSTGRES_DB=budget_tracker
+JWT_ACCESS_SECRET=<random-32-chars>
+JWT_REFRESH_SECRET=<random-32-chars>
+APP_BASE_URL=http://kasa.sh.info.pl:8620
+APP_PORT=8620
+EOF
 
-# 4. Run database migrations
+# 4. Log in to GitHub Container Registry
+echo <YOUR_GITHUB_PAT> | docker login ghcr.io -u <YOUR_GITHUB_USERNAME> --password-stdin
+
+# 5. Pull and start
+docker compose -f docker-compose.prod.yml --env-file .env up -d
+
+# 6. Run database migrations
 docker compose -f docker-compose.prod.yml exec api npx prisma migrate deploy --schema=apps/api/prisma/schema.prisma
 
-# 5. (Optional) Seed database
+# 7. (Optional) Seed with test user
 docker compose -f docker-compose.prod.yml exec api node apps/api/dist/prisma/seed.js
+```
+
+Update to latest version:
+```bash
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml --env-file .env up -d
 ```
 
 The app will be available on the port set by `APP_PORT` in `.env` (default: 8620).
 
 ## Changelog
 
-### v0.9.1 — Deployment fixes
-- Fixed docker-compose context path (was `../../`, corrected to `../../../`)
-- Added root-level `docker-compose.prod.yml` for simpler deployment (no relative path issues)
-- Added `Caddyfile.prod` for HTTP-only deployment (port-based, no TLS)
-- Production compose uses configurable `APP_PORT` env var (default: 8620)
-- Added deployment instructions to README
+### v0.9.2 — ghcr.io deployment
+- Docker workflow pushes images to GitHub Container Registry (ghcr.io)
+- Production compose pulls pre-built images instead of building from source
+- No need to clone repo on server — only 3 files needed (compose, Caddyfile, .env)
+- Image tags: `latest` (main branch), git SHA, semver tags
 
 ### v0.9.0 — Stage 9: Hardening
 - React ErrorBoundary component with friendly error UI and reload button
