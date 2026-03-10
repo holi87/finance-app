@@ -46,6 +46,16 @@ pnpm format
 
 ## Changelog
 
+### v0.4.0 — Stage 4: Financial Model
+- Accounts CRUD with balance caching and sync change tracking
+- Categories CRUD with parent-child hierarchy support
+- Transactions CRUD with filtering, pagination, balance updates
+- Transfer endpoint creating paired transactions with transfer link
+- Budget periods and budget limits CRUD with unique constraints
+- Reports: summary (income/expense/balance) and by-category breakdown
+- Soft delete for all financial entities with version increment
+- Every mutation records sync_changes for pull sync
+
 ### v0.3.0 — Stage 3: Auth & Workspaces
 - JWT authentication with access + refresh token rotation
 - Argon2 password hashing
