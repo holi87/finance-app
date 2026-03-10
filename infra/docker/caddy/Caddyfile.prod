@@ -13,8 +13,9 @@
     # Gzip compression
     encode gzip
 
-    # API routes -> backend service
+    # API routes -> backend service (rewrite /api/* to /api/v1/*)
     handle /api/* {
+        uri replace /api/ /api/v1/ 1
         reverse_proxy api:3000
     }
 
