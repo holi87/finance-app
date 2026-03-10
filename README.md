@@ -46,6 +46,19 @@ pnpm format
 
 ## Changelog
 
+### v0.8.0 — Stage 8: Docker & CI
+- Multi-stage API Dockerfile (install → build → production with non-root user)
+- Multi-stage Web Dockerfile (install → build → Caddy-based static serving)
+- Docker Compose production config with PostgreSQL, API, Web, and Caddy reverse proxy
+- Docker Compose dev config (PostgreSQL only for local development)
+- Caddy reverse proxy with HTTPS, security headers, gzip, API/web routing
+- GitHub Actions CI workflow (lint, typecheck, test, build with pnpm caching)
+- GitHub Actions Docker workflow (build API + Web images with Buildx caching)
+- .dockerignore for clean build contexts
+- .env.example with all required environment variables
+- Health checks on all services
+- Persistent volumes for PostgreSQL data and Caddy certificates
+
 ### v0.7.0 — Stage 7: Sync Engine
 - Backend sync service with push/pull endpoints
 - Push: idempotency via operation receipts, version-based conflict detection

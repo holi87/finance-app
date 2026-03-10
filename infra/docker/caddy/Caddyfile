@@ -1,0 +1,34 @@
+{
+    # Global options
+    email admin@budget.local
+}
+
+{$DOMAIN:budget.local} {
+    # Security headers
+    header {
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        -Server
+    }
+
+    # Gzip compression
+    encode gzip
+
+    # API routes -> backend service
+    handle /api/* {
+        reverse_proxy api:3000
+    }
+
+    # All other routes -> frontend service
+    handle {
+        reverse_proxy web:80
+    }
+
+    # Health endpoint for the proxy itself
+    handle /health {
+        respond "OK" 200
+    }
+}
