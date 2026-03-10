@@ -1,0 +1,12 @@
+{
+  "name": "@budget-tracker/api",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'API not yet configured'",
+    "build": "echo 'API not yet configured'",
+    "lint": "echo 'API not yet configured'",
+    "lint:fix": "echo 'API not yet configured'",
+    "typecheck": "echo 'API not yet configured'"
+  }
+}

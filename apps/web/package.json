@@ -1,0 +1,12 @@
+{
+  "name": "@budget-tracker/web",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'Web app not yet configured'",
+    "build": "echo 'Web app not yet configured'",
+    "lint": "echo 'Web app not yet configured'",
+    "lint:fix": "echo 'Web app not yet configured'",
+    "typecheck": "echo 'Web app not yet configured'"
+  }
+}
