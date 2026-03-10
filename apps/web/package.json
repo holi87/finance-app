@@ -2,11 +2,32 @@
   "name": "@budget-tracker/web",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "echo 'Web app not yet configured'",
-    "build": "echo 'Web app not yet configured'",
-    "lint": "echo 'Web app not yet configured'",
-    "lint:fix": "echo 'Web app not yet configured'",
-    "typecheck": "echo 'Web app not yet configured'"
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.5.0",
+    "@budget-tracker/shared-types": "workspace:*",
+    "@budget-tracker/shared-validation": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.4.1",
+    "typescript": "^5.9.3",
+    "vite": "^6.3.5",
+    "tailwindcss": "^4.1.0",
+    "@tailwindcss/vite": "^4.1.0",
+    "vite-plugin-pwa": "^1.0.0",
+    "eslint": "^10.0.3",
+    "vitest": "^4.0.18",
+    "autoprefixer": "^10.4.21"
   }
 }

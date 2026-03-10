@@ -46,6 +46,23 @@ pnpm format
 
 ## Changelog
 
+### v0.5.0 — Stage 5: Frontend Foundation
+- React + Vite + TypeScript + Tailwind CSS v4 app
+- PWA manifest and service worker configuration
+- JWT-based auth with auto-refresh on 401
+- AuthContext and WorkspaceContext providers
+- Login page, workspace switcher, workspace list/create
+- Dashboard with balance cards and recent transactions
+- Transaction list with filters, pagination, FAB for quick add
+- Transaction form (expense/income/transfer) with validation
+- Accounts list page with balance display
+- Categories list page with tabbed expense/income view
+- Budget page with progress bars and utilization tracking
+- Settings page with profile, sync, and device info
+- Responsive AppLayout: sidebar (desktop) + bottom nav (mobile)
+- SyncBadge, LoadingSpinner, EmptyState components
+- iPhone PWA safe area handling
+
 ### v0.4.0 — Stage 4: Financial Model
 - Accounts CRUD with balance caching and sync change tracking
 - Categories CRUD with parent-child hierarchy support
