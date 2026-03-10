@@ -35,6 +35,8 @@ RUN pnpm --filter @budget-tracker/api run build
 # ---- Production stage ----
 FROM node:20-slim AS production
 
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+
 RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
 # Security: run as non-root (with home dir so npx/pnpm work)
