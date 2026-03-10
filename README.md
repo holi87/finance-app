@@ -46,6 +46,16 @@ pnpm format
 
 ## Changelog
 
+### v0.3.0 — Stage 3: Auth & Workspaces
+- JWT authentication with access + refresh token rotation
+- Argon2 password hashing
+- Login, register, refresh, logout endpoints
+- `GET /api/v1/users/me` endpoint
+- Workspace CRUD (create, list, get, update)
+- Membership management (list, add, update role)
+- Workspace-scoped guard with role-based access (owner/editor/viewer)
+- Database seed script with test user
+
 ### v0.2.0 — Stage 2: Backend Foundation
 - NestJS application with ConfigModule, global exception filter, validation pipe
 - Prisma schema with full database model (15 tables, indexes, constraints)
