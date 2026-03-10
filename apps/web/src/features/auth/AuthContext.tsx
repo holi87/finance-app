@@ -8,6 +8,7 @@ import {
 } from 'react';
 import type { User } from '@budget-tracker/shared-types';
 import { api, setTokens, clearTokens, getAccessToken } from '@/services/api';
+import { bootstrapLocalData, clearAllLocalData } from '@/storage';
 
 interface AuthUser {
   id: string;
@@ -106,6 +107,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
     storeUser(authUser);
     setUser(authUser);
+    // Bootstrap local data after login
+    bootstrapLocalData().catch(console.warn);
   }, []);
 
   const logout = useCallback(async () => {
@@ -116,6 +119,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
     clearTokens();
     clearStoredUser();
+    await clearAllLocalData();
     setUser(null);
   }, []);
 

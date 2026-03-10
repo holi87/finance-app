@@ -126,6 +126,9 @@ importers:
       '@budget-tracker/shared-validation':
         specifier: workspace:*
         version: link:../../packages/shared-validation
+      dexie:
+        specifier: ^4.3.0
+        version: 4.3.0
       react:
         specifier: ^19.1.0
         version: 19.2.4
@@ -2411,6 +2414,9 @@ packages:
   detect-libc@2.1.2:
     resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
     engines: {node: '>=8'}
+
+  dexie@4.3.0:
+    resolution: {integrity: sha512-5EeoQpJvMKHe6zWt/FSIIuRa3CWlZeIl6zKXt+Lz7BU6RoRRLgX9dZEynRfXrkLcldKYCBiz7xekTEylnie1Ug==}
 
   dezalgo@1.0.4:
     resolution: {integrity: sha512-rXSP0bf+5n0Qonsb+SVVfNfIsimO4HEtmnIpPHY8Q1UCzKlQrDMfdobr8nJOOsRgWCyMRqeSBQzmWUMq7zvVig==}
@@ -6604,6 +6610,8 @@ snapshots:
   destr@2.0.5: {}
 
   detect-libc@2.1.2: {}
+
+  dexie@4.3.0: {}
 
   dezalgo@1.0.4:
     dependencies:

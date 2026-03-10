@@ -46,6 +46,15 @@ pnpm format
 
 ## Changelog
 
+### v0.6.0 — Stage 6: Offline Storage
+- Dexie IndexedDB database with schema for all entities
+- Local repositories: accounts, categories, transactions, budgets, sync
+- Data bootstrap after login (fetches all workspace data to IndexedDB)
+- Sync outbox repository for pending changes
+- Sync metadata repository for cursors and last-synced timestamps
+- Logout clears all local data
+- Indexed compound keys for workspace-scoped queries
+
 ### v0.5.0 — Stage 5: Frontend Foundation
 - React + Vite + TypeScript + Tailwind CSS v4 app
 - PWA manifest and service worker configuration
