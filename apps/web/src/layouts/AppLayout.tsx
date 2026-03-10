@@ -4,11 +4,15 @@ import { SyncBadge } from '@/components/SyncBadge';
 import { useAuth } from '@/features/auth/AuthContext';
 import { useWorkspace } from '@/features/workspaces/WorkspaceContext';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { useSyncInit } from '@/sync/useSyncInit';
 
 export function AppLayout() {
   const { user } = useAuth();
   const { activeWorkspace, isLoading, error } = useWorkspace();
   const navigate = useNavigate();
+
+  // Initialize sync engine — triggers auto-sync on workspace change, online recovery, app resume
+  useSyncInit(activeWorkspace?.id ?? null);
 
   if (isLoading) {
     return (

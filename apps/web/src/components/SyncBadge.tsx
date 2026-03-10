@@ -1,31 +1,23 @@
 import { useState, useEffect } from 'react';
-
-type SyncStatus = 'online' | 'offline' | 'syncing' | 'error';
+import { onSyncStatusChange, type SyncStatus } from '@/sync/sync-orchestrator';
 
 export function SyncBadge() {
-  const [status, setStatus] = useState<SyncStatus>(navigator.onLine ? 'online' : 'offline');
+  const [status, setStatus] = useState<SyncStatus>({
+    state: navigator.onLine ? 'idle' : 'offline',
+    lastSyncedAt: null,
+    pendingChanges: 0,
+    error: null,
+  });
 
   useEffect(() => {
-    function handleOnline() {
-      setStatus('online');
-    }
-    function handleOffline() {
-      setStatus('offline');
-    }
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
+    const unsubscribe = onSyncStatusChange(setStatus);
+    return unsubscribe;
   }, []);
 
   const config = {
-    online: {
+    idle: {
       dotColor: 'bg-green-500',
-      label: 'Online',
+      label: status.pendingChanges > 0 ? `${status.pendingChanges} pending` : 'Synced',
       textColor: 'text-green-700',
       bgColor: 'bg-green-50 border-green-200',
     },
@@ -49,13 +41,14 @@ export function SyncBadge() {
     },
   };
 
-  const current = config[status];
+  const current = config[status.state];
 
   return (
     <div
       className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${current.bgColor} ${current.textColor}`}
       role="status"
       aria-label={`Sync status: ${current.label}`}
+      title={status.error ?? undefined}
     >
       <span className={`h-2 w-2 rounded-full ${current.dotColor}`} />
       {current.label}

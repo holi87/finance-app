@@ -46,6 +46,20 @@ pnpm format
 
 ## Changelog
 
+### v0.7.0 — Stage 7: Sync Engine
+- Backend sync service with push/pull endpoints
+- Push: idempotency via operation receipts, version-based conflict detection
+- Pull: cursor-based pagination over sync_changes table
+- Transactional operation processing (create/update/delete) with sync change recording
+- Frontend sync orchestrator with full push/pull cycle
+- Sync lock to prevent concurrent sync operations
+- Status listener pattern for reactive UI updates
+- Auto-sync triggers: online recovery, app resume (visibility change)
+- SyncBadge integrated with real sync status (idle/syncing/offline/error + pending count)
+- useSyncInit hook for workspace-aware sync initialization
+- Device ID persistence for idempotent operations
+- Vite proxy rewrite for api/v1 prefix consistency
+
 ### v0.6.0 — Stage 6: Offline Storage
 - Dexie IndexedDB database with schema for all entities
 - Local repositories: accounts, categories, transactions, budgets, sync
