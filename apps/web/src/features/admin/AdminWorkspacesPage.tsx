@@ -183,10 +183,10 @@ function MembersPanel({
   const loadMembers = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await api.get<WorkspaceMember[]>(
+      const data = await api.get<{ workspace: { id: string; name: string }; members: WorkspaceMember[] }>(
         `/api/admin/workspaces/${workspace.id}/members`,
       );
-      setMembers(data);
+      setMembers(data.members);
     } catch {
       setError(tRef.current.admin.loadFailed);
     } finally {

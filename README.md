@@ -92,6 +92,18 @@ The app will be available on the port set by `APP_PORT` in `.env` (default: 8620
 
 ## Changelog
 
+### v0.10.0 — Admin fixes & Reminder system
+- Fix admin workspace member management (response shape mismatch)
+- Admin user deactivation (soft-delete via isActive=false)
+- Reminder/notification system:
+  - Prisma Reminder model with transaction template fields, status, and result linking
+  - Full CRUD + execute + dismiss endpoints with workspace isolation and sync
+  - ReminderStatus enum and Reminder domain type in shared-types
+  - Reminder entity registered in sync engine
+  - Frontend ReminderContext with polling and ReminderBar notification banner
+  - Expandable reminder list with Execute/Dismiss actions per item
+  - i18n translations (EN + PL) for all reminder strings
+
 ### v0.9.2 — ghcr.io deployment
 - Docker workflow pushes images to GitHub Container Registry (ghcr.io)
 - Production compose pulls pre-built images instead of building from source

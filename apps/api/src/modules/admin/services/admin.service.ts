@@ -142,6 +142,19 @@ export class AdminService {
     }
   }
 
+  async deleteUser(userId: string) {
+    try {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { isActive: false },
+      });
+      return { success: true };
+    } catch (err) {
+      if (isPrismaNotFound(err)) throw new NotFoundException('User not found');
+      throw err;
+    }
+  }
+
   // ── Workspaces ─────────────────────────────────
 
   async listWorkspaces(params: { page?: number; pageSize?: number }) {

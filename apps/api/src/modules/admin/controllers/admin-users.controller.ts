@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Param,
   Body,
   Query,
@@ -58,5 +59,10 @@ export class AdminUsersController {
     },
   ) {
     return this.adminService.updateUser(userId, body);
+  }
+
+  @Delete(':userId')
+  deleteUser(@Param('userId') userId: string) {
+    return this.adminService.deleteUser(userId);
   }
 }

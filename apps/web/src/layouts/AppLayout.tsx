@@ -6,6 +6,7 @@ import { useWorkspace } from '@/features/workspaces/WorkspaceContext';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useSyncInit } from '@/sync/useSyncInit';
 import { useTranslation } from '@/i18n/I18nContext';
+import { ReminderBar } from '@/features/reminders/ReminderBar';
 
 export function AppLayout() {
   const { user } = useAuth();
@@ -93,6 +94,9 @@ export function AppLayout() {
           <WorkspaceSwitcher />
           <SyncBadge />
         </header>
+
+        {/* Reminder notifications */}
+        <ReminderBar />
 
         {/* Page content */}
         <main className="flex-1 overflow-y-auto pb-20 lg:pb-0">

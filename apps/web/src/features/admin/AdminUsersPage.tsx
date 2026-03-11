@@ -90,6 +90,16 @@ export function AdminUsersPage() {
     }
   }
 
+  async function handleDeleteUser(user: AdminUser) {
+    if (!window.confirm(t.admin.confirmDeactivate)) return;
+    try {
+      await api.delete(`/api/admin/users/${user.id}`);
+      loadUsers();
+    } catch {
+      setError(t.admin.saveFailed);
+    }
+  }
+
   const totalPages = Math.ceil(total / 20);
 
   return (
@@ -170,12 +180,22 @@ export function AdminUsersPage() {
                         )}
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <button
-                          onClick={() => setEditingUser(u)}
-                          className="text-sm font-medium text-blue-500 hover:text-blue-600"
-                        >
-                          {t.admin.editUser}
-                        </button>
+                        <div className="flex items-center justify-end gap-3">
+                          <button
+                            onClick={() => setEditingUser(u)}
+                            className="text-sm font-medium text-blue-500 hover:text-blue-600"
+                          >
+                            {t.admin.editUser}
+                          </button>
+                          {u.isActive && (
+                            <button
+                              onClick={() => handleDeleteUser(u)}
+                              className="text-sm font-medium text-red-500 hover:text-red-600"
+                            >
+                              {t.common.delete}
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}

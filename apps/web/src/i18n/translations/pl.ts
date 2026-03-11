@@ -257,6 +257,22 @@ export const pl: Translations = {
     error: 'Błąd synchronizacji',
   },
 
+  // Reminders
+  reminders: {
+    title: 'Przypomnienia',
+    pending: 'Oczekujące przypomnienia',
+    execute: 'Wykonaj',
+    dismiss: 'Odrzuć',
+    showAll: 'Pokaż wszystkie',
+    hide: 'Ukryj',
+    noPending: 'Brak oczekujących przypomnień',
+    count: '{n} przypomnienie(ń) do wykonania',
+    executed: 'Transakcja utworzona z przypomnienia',
+    dismissed: 'Przypomnienie odrzucone',
+    loadFailed: 'Nie udało się załadować przypomnień',
+    actionFailed: 'Nie udało się przetworzyć przypomnienia',
+  },
+
   // Admin
   admin: {
     title: 'Administracja',

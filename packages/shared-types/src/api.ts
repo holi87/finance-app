@@ -1,4 +1,4 @@
-import type { User, Workspace, Membership, Account, Category, Transaction, BudgetPeriod, BudgetLimit } from './domain';
+import type { User, Workspace, Membership, Account, Category, Transaction, BudgetPeriod, BudgetLimit, Reminder } from './domain';
 import type { MembershipRole } from './enums';
 
 // --- Error ---
@@ -155,6 +155,27 @@ export interface UpdateBudgetLimitRequest {
   amount?: string;
 }
 
+// --- Reminder ---
+export interface CreateReminderRequest {
+  accountId: string;
+  categoryId?: string;
+  type: string;
+  amount: string;
+  currency: string;
+  description?: string;
+  reminderDate: string;
+}
+
+export interface UpdateReminderRequest {
+  accountId?: string;
+  categoryId?: string;
+  type?: string;
+  amount?: string;
+  currency?: string;
+  description?: string;
+  reminderDate?: string;
+}
+
 // --- Reports ---
 export interface ReportSummary {
   incomeTotal: string;
@@ -180,4 +201,5 @@ export type {
   Transaction,
   BudgetPeriod,
   BudgetLimit,
+  Reminder,
 };

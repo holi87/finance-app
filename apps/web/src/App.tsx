@@ -18,6 +18,7 @@ import { AppLayout } from '@/layouts/AppLayout';
 import { AdminLayout } from '@/features/admin/AdminLayout';
 import { AdminUsersPage } from '@/features/admin/AdminUsersPage';
 import { AdminWorkspacesPage } from '@/features/admin/AdminWorkspacesPage';
+import { ReminderProvider } from '@/features/reminders/ReminderContext';
 
 export function App() {
   return (
@@ -45,7 +46,9 @@ export function App() {
               <Route
                 element={
                   <WorkspaceProvider>
-                    <AppLayout />
+                    <ReminderProvider>
+                      <AppLayout />
+                    </ReminderProvider>
                   </WorkspaceProvider>
                 }
               >

@@ -16,6 +16,7 @@ export const SYNC_ENTITY_TYPES = [
   'budget_limit',
   'tag',
   'transaction_tag',
+  'reminder',
 ] as const;
 
 export type SyncEntityType = (typeof SYNC_ENTITY_TYPES)[number];

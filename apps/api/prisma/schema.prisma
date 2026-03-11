@@ -27,6 +27,7 @@ model User {
   memberships          Membership[]
   invitedMemberships   Membership[]   @relation("InvitedBy")
   transactions         Transaction[]  @relation("CreatedBy")
+  reminders            Reminder[]     @relation("ReminderCreatedBy")
   syncChanges          SyncChange[]
   syncCursors          SyncCursor[]
   refreshTokens        RefreshToken[]
@@ -87,6 +88,7 @@ model Workspace {
   budgetPeriods BudgetPeriod[]
   budgetLimits  BudgetLimit[]
   tags          Tag[]
+  reminders     Reminder[]
   syncChanges   SyncChange[]
   syncOperationReceipts SyncOperationReceipt[]
   syncCursors   SyncCursor[]
@@ -134,6 +136,7 @@ model Account {
 
   workspace    Workspace     @relation(fields: [workspaceId], references: [id])
   transactions Transaction[]
+  reminders    Reminder[]
 
   @@index([workspaceId, isArchived], name: "idx_accounts_workspace_archived")
   @@index([workspaceId, deletedAt], name: "idx_accounts_workspace_deleted")
@@ -159,6 +162,7 @@ model Category {
   children       Category[]    @relation("CategoryParent")
   transactions   Transaction[]
   budgetLimits   BudgetLimit[]
+  reminders      Reminder[]
 
   @@index([workspaceId, kind], name: "idx_categories_workspace_kind")
   @@index([workspaceId, deletedAt], name: "idx_categories_workspace_deleted")
@@ -189,6 +193,7 @@ model Transaction {
   outboundTransferLinks   TransferLink[]  @relation("OutboundTransaction")
   inboundTransferLinks    TransferLink[]  @relation("InboundTransaction")
   transactionTags         TransactionTag[]
+  resultReminders         Reminder[]      @relation("ReminderResultTransaction")
 
   @@index([workspaceId, transactionDate(sort: Desc)], name: "idx_txn_workspace_date")
   @@index([workspaceId, accountId], name: "idx_txn_workspace_account")
@@ -281,6 +286,39 @@ model TransactionTag {
 
   @@id([transactionId, tagId])
   @@map("transaction_tags")
+}
+
+// ──────────────────────────────────────────────
+// Reminders
+// ──────────────────────────────────────────────
+
+model Reminder {
+  id                    String    @id @default(uuid()) @db.Uuid
+  workspaceId           String    @map("workspace_id") @db.Uuid
+  accountId             String    @map("account_id") @db.Uuid
+  categoryId            String?   @map("category_id") @db.Uuid
+  type                  String
+  amount                Decimal   @db.Decimal(18, 2)
+  currency              String    @db.Char(3)
+  description           String?
+  reminderDate          DateTime  @map("reminder_date") @db.Date
+  status                String    @default("pending")
+  resultTransactionId   String?   @map("result_transaction_id") @db.Uuid
+  createdBy             String    @map("created_by") @db.Uuid
+  version               Int       @default(1)
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt             DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt             DateTime? @map("deleted_at") @db.Timestamptz
+
+  workspace           Workspace    @relation(fields: [workspaceId], references: [id])
+  account             Account      @relation(fields: [accountId], references: [id])
+  category            Category?    @relation(fields: [categoryId], references: [id])
+  creator             User         @relation("ReminderCreatedBy", fields: [createdBy], references: [id])
+  resultTransaction   Transaction? @relation("ReminderResultTransaction", fields: [resultTransactionId], references: [id])
+
+  @@index([workspaceId, status, reminderDate], name: "idx_reminders_workspace_status_date")
+  @@index([workspaceId, deletedAt], name: "idx_reminders_workspace_deleted")
+  @@map("reminders")
 }
 
 // ──────────────────────────────────────────────

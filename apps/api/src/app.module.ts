@@ -13,6 +13,7 @@ import { BudgetsModule } from './modules/budgets/budgets.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { SyncModule } from './modules/sync/sync.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { RemindersModule } from './modules/reminders/reminders.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { AdminModule } from './modules/admin/admin.module';
     ReportsModule,
     SyncModule,
     AdminModule,
+    RemindersModule,
   ],
 })
 export class AppModule {}

@@ -47,6 +47,7 @@ export class SyncService {
     transaction: 'transaction',
     budget_limit: 'budgetLimit',
     tag: 'tag',
+    reminder: 'reminder',
   };
 
   constructor(private readonly prisma: PrismaService) {}

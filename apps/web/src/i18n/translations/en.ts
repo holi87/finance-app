@@ -255,6 +255,22 @@ export const en = {
     error: 'Sync error',
   },
 
+  // Reminders
+  reminders: {
+    title: 'Reminders',
+    pending: 'Pending reminders',
+    execute: 'Execute',
+    dismiss: 'Dismiss',
+    showAll: 'Show all',
+    hide: 'Hide',
+    noPending: 'No pending reminders',
+    count: '{n} reminder(s) due',
+    executed: 'Transaction created from reminder',
+    dismissed: 'Reminder dismissed',
+    loadFailed: 'Failed to load reminders',
+    actionFailed: 'Failed to process reminder',
+  },
+
   // Admin
   admin: {
     title: 'Administration',

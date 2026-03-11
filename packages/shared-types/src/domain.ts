@@ -5,6 +5,7 @@ import type {
   CategoryKind,
   TransactionType,
   BudgetPeriodType,
+  ReminderStatus,
 } from './enums';
 
 // --- Base ---
@@ -123,6 +124,20 @@ export interface BudgetLimit extends SyncableEntity {
   categoryId: string;
   amount: string;
   currency: string;
+}
+
+// --- Reminder ---
+export interface Reminder extends SyncableEntity {
+  accountId: string;
+  categoryId: string | null;
+  type: TransactionType;
+  amount: string;
+  currency: string;
+  description: string | null;
+  reminderDate: string;
+  status: ReminderStatus;
+  resultTransactionId: string | null;
+  createdBy: string;
 }
 
 // --- Tag ---

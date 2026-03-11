@@ -47,6 +47,14 @@ export const BudgetPeriodType = {
 } as const;
 export type BudgetPeriodType = (typeof BudgetPeriodType)[keyof typeof BudgetPeriodType];
 
+// --- Reminder ---
+export const ReminderStatus = {
+  PENDING: 'pending',
+  COMPLETED: 'completed',
+  DISMISSED: 'dismissed',
+} as const;
+export type ReminderStatus = (typeof ReminderStatus)[keyof typeof ReminderStatus];
+
 // --- Sync ---
 export const SyncOperationType = {
   CREATE: 'create',
