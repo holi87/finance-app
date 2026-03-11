@@ -344,7 +344,6 @@ function AddMemberModal({
       }
     }
     loadAllUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [existingMemberIds]);
 
   async function handleSubmit(e: React.FormEvent) {
