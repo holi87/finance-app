@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useWorkspace } from './WorkspaceContext';
 
 export function WorkspaceSwitcher() {
   const { workspaces, activeWorkspace, switchWorkspace } = useWorkspace();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -91,6 +93,24 @@ export function WorkspaceSwitcher() {
               )}
             </button>
           ))}
+
+          {/* Divider + manage link */}
+          <div className="my-1 border-t border-gray-100" />
+          <button
+            type="button"
+            onClick={() => {
+              navigate('/workspaces');
+              setIsOpen(false);
+            }}
+            className="flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-700"
+          >
+            <span className="flex h-8 w-8 items-center justify-center rounded-md border-2 border-dashed border-gray-300 text-gray-400">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+            </span>
+            <span className="font-medium">Manage workspaces</span>
+          </button>
         </div>
       )}
     </div>
