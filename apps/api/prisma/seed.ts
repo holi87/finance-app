@@ -6,41 +6,73 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('Seeding database...');
 
-  // Create test user
-  const passwordHash = await argon2.hash('password123');
+  // Create admin user
+  const adminHash = await argon2.hash('admin123');
+  const admin = await prisma.user.upsert({
+    where: { email: 'admin@budget.app' },
+    update: { isAdmin: true },
+    create: {
+      email: 'admin@budget.app',
+      passwordHash: adminHash,
+      displayName: 'Administrator',
+      isAdmin: true,
+    },
+  });
+  console.log(`Admin user: ${admin.email} / admin123 (isAdmin=${admin.isAdmin})`);
+
+  // Create test user (non-admin)
+  const userHash = await argon2.hash('password123');
   const user = await prisma.user.upsert({
     where: { email: 'test@example.com' },
     update: {},
     create: {
       email: 'test@example.com',
-      passwordHash,
+      passwordHash: userHash,
       displayName: 'Test User',
     },
   });
+  console.log(`Test user: ${user.email} / password123`);
 
-  console.log(`Created user: ${user.email} (${user.id})`);
-
-  // Create a personal workspace
-  const workspace = await prisma.workspace.upsert({
-    where: { ownerId_slug: { ownerId: user.id, slug: 'personal' } },
+  // Create workspaces
+  const household = await prisma.workspace.upsert({
+    where: { ownerId_slug: { ownerId: admin.id, slug: 'domowy' } },
     update: {},
     create: {
-      name: 'Personal',
-      slug: 'personal',
+      name: 'Budżet domowy',
+      slug: 'domowy',
       type: 'personal',
       baseCurrency: 'PLN',
-      ownerId: user.id,
+      ownerId: admin.id,
       memberships: {
-        create: {
-          userId: user.id,
-          role: 'owner',
-        },
+        create: [
+          { userId: admin.id, role: 'owner' },
+          { userId: user.id, role: 'editor' },
+        ],
       },
     },
   });
+  console.log(`Workspace: ${household.name} (${household.id})`);
 
-  console.log(`Created workspace: ${workspace.name} (${workspace.id})`);
-  console.log('Seeding complete!');
+  const firma = await prisma.workspace.upsert({
+    where: { ownerId_slug: { ownerId: admin.id, slug: 'firma' } },
+    update: {},
+    create: {
+      name: 'Firma',
+      slug: 'firma',
+      type: 'business',
+      baseCurrency: 'PLN',
+      ownerId: admin.id,
+      memberships: {
+        create: { userId: admin.id, role: 'owner' },
+      },
+    },
+  });
+  console.log(`Workspace: ${firma.name} (${firma.id})`);
+
+  console.log('\n✅ Seeding complete!');
+  console.log('---');
+  console.log('Admin login:  admin@budget.app / admin123');
+  console.log('User login:   test@example.com / password123');
 }
 
 main()

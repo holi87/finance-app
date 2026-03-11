@@ -5,11 +5,13 @@ import { useAuth } from '@/features/auth/AuthContext';
 import { useWorkspace } from '@/features/workspaces/WorkspaceContext';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useSyncInit } from '@/sync/useSyncInit';
+import { useTranslation } from '@/i18n/I18nContext';
 
 export function AppLayout() {
   const { user } = useAuth();
   const { activeWorkspace, isLoading, error } = useWorkspace();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Initialize sync engine — triggers auto-sync on workspace change, online recovery, app resume
   useSyncInit(activeWorkspace?.id ?? null);
@@ -30,7 +32,7 @@ export function AppLayout() {
           onClick={() => window.location.reload()}
           className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white"
         >
-          Retry
+          {t.common.retry}
         </button>
       </div>
     );
@@ -39,12 +41,12 @@ export function AppLayout() {
   if (!activeWorkspace) {
     return (
       <div className="flex min-h-dvh flex-col items-center justify-center px-4">
-        <p className="mb-4 text-sm text-gray-600">No workspace selected.</p>
+        <p className="mb-4 text-sm text-gray-600">{t.workspaces.noWorkspaceSelected}</p>
         <button
           onClick={() => navigate('/workspaces')}
           className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white"
         >
-          Choose workspace
+          {t.workspaces.chooseWorkspace}
         </button>
       </div>
     );
@@ -61,12 +63,15 @@ export function AppLayout() {
 
         {/* Sidebar navigation */}
         <nav className="flex-1 space-y-1 p-3" aria-label="Main navigation">
-          <SidebarLink to="/dashboard" icon={<DashboardIcon />} label="Dashboard" />
-          <SidebarLink to="/transactions" icon={<TransactionsIcon />} label="Transactions" />
-          <SidebarLink to="/accounts" icon={<AccountsIcon />} label="Accounts" />
-          <SidebarLink to="/categories" icon={<CategoriesIcon />} label="Categories" />
-          <SidebarLink to="/budgets" icon={<BudgetsIcon />} label="Budgets" />
-          <SidebarLink to="/settings" icon={<SettingsIcon />} label="Settings" />
+          <SidebarLink to="/dashboard" icon={<DashboardIcon />} label={t.nav.dashboard} />
+          <SidebarLink to="/transactions" icon={<TransactionsIcon />} label={t.nav.transactions} />
+          <SidebarLink to="/accounts" icon={<AccountsIcon />} label={t.nav.accounts} />
+          <SidebarLink to="/categories" icon={<CategoriesIcon />} label={t.nav.categories} />
+          <SidebarLink to="/budgets" icon={<BudgetsIcon />} label={t.nav.budgets} />
+          <SidebarLink to="/settings" icon={<SettingsIcon />} label={t.nav.settings} />
+          {user?.isAdmin && (
+            <SidebarLink to="/admin" icon={<AdminIcon />} label={t.nav.admin} />
+          )}
         </nav>
 
         {/* Sidebar footer */}
@@ -101,11 +106,11 @@ export function AppLayout() {
           aria-label="Main navigation"
         >
           <div className="flex items-center justify-around px-2 py-1">
-            <BottomNavLink to="/dashboard" icon={<DashboardIcon />} label="Dashboard" />
-            <BottomNavLink to="/transactions" icon={<TransactionsIcon />} label="Transactions" />
+            <BottomNavLink to="/dashboard" icon={<DashboardIcon />} label={t.nav.dashboard} />
+            <BottomNavLink to="/transactions" icon={<TransactionsIcon />} label={t.nav.transactions} />
             <BottomNavAddButton />
-            <BottomNavLink to="/budgets" icon={<BudgetsIcon />} label="Budgets" />
-            <BottomNavLink to="/settings" icon={<SettingsIcon />} label="Settings" />
+            <BottomNavLink to="/budgets" icon={<BudgetsIcon />} label={t.nav.budgets} />
+            <BottomNavLink to="/settings" icon={<SettingsIcon />} label={t.nav.settings} />
           </div>
         </nav>
       </div>
@@ -167,12 +172,13 @@ function BottomNavLink({ to, icon, label }: BottomNavLinkProps) {
 
 function BottomNavAddButton() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <button
       onClick={() => navigate('/transactions/new')}
       className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-500 text-white shadow-md transition-transform active:scale-95"
-      aria-label="Add transaction"
+      aria-label={t.nav.addTransaction}
     >
       <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -261,6 +267,18 @@ function SettingsIcon() {
         strokeLinecap="round"
         strokeLinejoin="round"
         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+      />
+    </svg>
+  );
+}
+
+function AdminIcon() {
+  return (
+    <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
       />
     </svg>
   );

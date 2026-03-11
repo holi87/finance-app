@@ -5,9 +5,11 @@ import { WorkspaceType } from '@budget-tracker/shared-types';
 import { api } from '@/services/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { EmptyState } from '@/components/EmptyState';
+import { useTranslation } from '@/i18n/I18nContext';
 
 export function WorkspaceListPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [workspaces, setWorkspaces] = useState<WorkspaceWithRole[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +26,7 @@ export function WorkspaceListPage() {
       const data = await api.get<WorkspaceWithRole[]>('/api/workspaces');
       setWorkspaces(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load workspaces');
+      setError(err instanceof Error ? err.message : t.workspaces.loadFailed);
     } finally {
       setIsLoading(false);
     }
@@ -46,8 +48,8 @@ export function WorkspaceListPage() {
   return (
     <div className="min-h-dvh bg-gray-50 px-4 py-8">
       <div className="mx-auto max-w-lg">
-        <h1 className="mb-1 text-2xl font-bold text-gray-900">Workspaces</h1>
-        <p className="mb-6 text-sm text-gray-500">Choose a workspace to manage</p>
+        <h1 className="mb-1 text-2xl font-bold text-gray-900">{t.workspaces.title}</h1>
+        <p className="mb-6 text-sm text-gray-500">{t.workspaces.subtitle}</p>
 
         {error && (
           <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -56,16 +58,16 @@ export function WorkspaceListPage() {
               onClick={loadWorkspaces}
               className="ml-2 font-medium text-red-800 underline"
             >
-              Retry
+              {t.common.retry}
             </button>
           </div>
         )}
 
         {workspaces.length === 0 && !error ? (
           <EmptyState
-            title="No workspaces yet"
-            description="Create your first workspace to start tracking your finances."
-            actionLabel="Create workspace"
+            title={t.workspaces.noWorkspaces}
+            description={t.workspaces.noWorkspacesDesc}
+            actionLabel={t.workspaces.createWorkspace}
             onAction={() => setShowCreateForm(true)}
           />
         ) : (
@@ -111,7 +113,7 @@ export function WorkspaceListPage() {
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
-          Create new workspace
+          {t.workspaces.createNew}
         </button>
 
         {/* Create workspace modal */}
@@ -137,6 +139,7 @@ interface CreateWorkspaceModalProps {
 }
 
 function CreateWorkspaceModal({ onClose, onCreated }: CreateWorkspaceModalProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [type, setType] = useState<string>(WorkspaceType.PERSONAL);
   const [currency, setCurrency] = useState('USD');
@@ -157,7 +160,7 @@ function CreateWorkspaceModal({ onClose, onCreated }: CreateWorkspaceModalProps)
       await api.post('/api/workspaces', body);
       onCreated();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create workspace');
+      setError(err instanceof Error ? err.message : t.workspaces.createFailed);
     } finally {
       setIsSubmitting(false);
     }
@@ -166,7 +169,7 @@ function CreateWorkspaceModal({ onClose, onCreated }: CreateWorkspaceModalProps)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-        <h2 className="mb-4 text-lg font-bold text-gray-900">Create workspace</h2>
+        <h2 className="mb-4 text-lg font-bold text-gray-900">{t.workspaces.createWorkspace}</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
@@ -177,7 +180,7 @@ function CreateWorkspaceModal({ onClose, onCreated }: CreateWorkspaceModalProps)
 
           <div>
             <label htmlFor="ws-name" className="block text-sm font-medium text-gray-700">
-              Name
+              {t.common.name}
             </label>
             <input
               id="ws-name"
@@ -186,14 +189,14 @@ function CreateWorkspaceModal({ onClose, onCreated }: CreateWorkspaceModalProps)
               onChange={(e) => setName(e.target.value)}
               required
               maxLength={100}
-              placeholder="e.g. Household Budget"
+              placeholder={t.workspaces.namePlaceholder}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
             />
           </div>
 
           <div>
             <label htmlFor="ws-type" className="block text-sm font-medium text-gray-700">
-              Type
+              {t.common.type}
             </label>
             <select
               id="ws-type"
@@ -201,16 +204,16 @@ function CreateWorkspaceModal({ onClose, onCreated }: CreateWorkspaceModalProps)
               onChange={(e) => setType(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
             >
-              <option value={WorkspaceType.PERSONAL}>Personal</option>
-              <option value={WorkspaceType.BUSINESS}>Business</option>
-              <option value={WorkspaceType.COMPANY}>Company</option>
-              <option value={WorkspaceType.SHARED}>Shared</option>
+              <option value={WorkspaceType.PERSONAL}>{t.workspaces.typePersonal}</option>
+              <option value={WorkspaceType.BUSINESS}>{t.workspaces.typeBusiness}</option>
+              <option value={WorkspaceType.COMPANY}>{t.workspaces.typeCompany}</option>
+              <option value={WorkspaceType.SHARED}>{t.workspaces.typeShared}</option>
             </select>
           </div>
 
           <div>
             <label htmlFor="ws-currency" className="block text-sm font-medium text-gray-700">
-              Base currency
+              {t.workspaces.baseCurrency}
             </label>
             <select
               id="ws-currency"
@@ -218,14 +221,14 @@ function CreateWorkspaceModal({ onClose, onCreated }: CreateWorkspaceModalProps)
               onChange={(e) => setCurrency(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
             >
-              <option value="USD">USD - US Dollar</option>
-              <option value="EUR">EUR - Euro</option>
-              <option value="GBP">GBP - British Pound</option>
-              <option value="PLN">PLN - Polish Zloty</option>
-              <option value="CZK">CZK - Czech Koruna</option>
-              <option value="CHF">CHF - Swiss Franc</option>
-              <option value="JPY">JPY - Japanese Yen</option>
-              <option value="CAD">CAD - Canadian Dollar</option>
+              <option value="USD">{t.currencies.USD}</option>
+              <option value="EUR">{t.currencies.EUR}</option>
+              <option value="GBP">{t.currencies.GBP}</option>
+              <option value="PLN">{t.currencies.PLN}</option>
+              <option value="CZK">{t.currencies.CZK}</option>
+              <option value="CHF">{t.currencies.CHF}</option>
+              <option value="JPY">{t.currencies.JPY}</option>
+              <option value="CAD">{t.currencies.CAD}</option>
             </select>
           </div>
 
@@ -235,14 +238,14 @@ function CreateWorkspaceModal({ onClose, onCreated }: CreateWorkspaceModalProps)
               onClick={onClose}
               className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
             >
-              Cancel
+              {t.common.cancel}
             </button>
             <button
               type="submit"
               disabled={isSubmitting || !name.trim()}
               className="flex flex-1 items-center justify-center rounded-lg bg-blue-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmitting ? <LoadingSpinner size="sm" /> : 'Create'}
+              {isSubmitting ? <LoadingSpinner size="sm" /> : t.common.create}
             </button>
           </div>
         </form>

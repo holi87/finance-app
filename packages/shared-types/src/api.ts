@@ -19,7 +19,7 @@ export interface LoginRequest {
 export interface LoginResponse {
   accessToken: string;
   refreshToken: string;
-  user: Pick<User, 'id' | 'email' | 'displayName'>;
+  user: Pick<User, 'id' | 'email' | 'displayName' | 'isAdmin'>;
 }
 
 export interface RefreshRequest {
@@ -32,7 +32,7 @@ export interface RefreshResponse {
 }
 
 // --- User ---
-export type UserProfileResponse = Pick<User, 'id' | 'email' | 'displayName'>;
+export type UserProfileResponse = Pick<User, 'id' | 'email' | 'displayName' | 'isAdmin'>;
 
 // --- Workspace ---
 export interface CreateWorkspaceRequest {

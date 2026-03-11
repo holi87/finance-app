@@ -44,6 +44,7 @@ export class AuthService {
         displayName: true,
         passwordHash: true,
         isActive: true,
+        isAdmin: true,
       },
     });
 
@@ -62,19 +63,19 @@ export class AuthService {
       data: { lastLoginAt: new Date() },
     });
 
-    const tokens = await this.generateTokens({ sub: user.id, email: user.email });
+    const tokens = await this.generateTokens({ sub: user.id, email: user.email, isAdmin: user.isAdmin });
 
     return {
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
-      user: { id: user.id, email: user.email, displayName: user.displayName },
+      user: { id: user.id, email: user.email, displayName: user.displayName, isAdmin: user.isAdmin },
     };
   }
 
   async refresh(refreshToken: string) {
     const storedToken = await this.prisma.refreshToken.findUnique({
       where: { token: refreshToken },
-      include: { user: { select: { id: true, email: true, displayName: true, isActive: true } } },
+      include: { user: { select: { id: true, email: true, displayName: true, isActive: true, isAdmin: true } } },
     });
 
     if (!storedToken || storedToken.revokedAt || storedToken.expiresAt < new Date()) {
@@ -94,6 +95,7 @@ export class AuthService {
     const tokens = await this.generateTokens({
       sub: storedToken.user.id,
       email: storedToken.user.email,
+      isAdmin: storedToken.user.isAdmin,
     });
 
     return {

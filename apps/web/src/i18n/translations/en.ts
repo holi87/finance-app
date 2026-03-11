@@ -1,0 +1,298 @@
+export const en = {
+  // Common
+  common: {
+    cancel: 'Cancel',
+    create: 'Create',
+    save: 'Save',
+    delete: 'Delete',
+    retry: 'Retry',
+    add: '+ Add',
+    yes: 'Yes',
+    no: 'No',
+    error: 'Error',
+    name: 'Name',
+    type: 'Type',
+    currency: 'Currency',
+    loading: 'Loading...',
+    untitled: 'Untitled',
+    both: 'both',
+    optional: '(optional)',
+  },
+
+  // Auth / Login
+  auth: {
+    appName: 'Budget Tracker',
+    subtitle: 'Sign in to manage your finances',
+    email: 'Email',
+    emailPlaceholder: 'you@example.com',
+    password: 'Password',
+    passwordPlaceholder: 'Enter your password',
+    signIn: 'Sign in',
+    signOut: 'Sign out',
+    loginFailed: 'Login failed. Please try again.',
+    invalidCredentials: 'Invalid credentials',
+  },
+
+  // Navigation
+  nav: {
+    dashboard: 'Dashboard',
+    transactions: 'Transactions',
+    accounts: 'Accounts',
+    categories: 'Categories',
+    budgets: 'Budgets',
+    settings: 'Settings',
+    admin: 'Admin',
+    addTransaction: 'Add transaction',
+  },
+
+  // Dashboard
+  dashboard: {
+    totalBalance: 'Total Balance',
+    income: 'Income',
+    expenses: 'Expenses',
+    budgetSummary: 'Budget Summary',
+    budgetPlaceholder: 'Budget utilization will appear here once budgets are set up.',
+    setupBudgets: 'Set up budgets',
+    recentTransactions: 'Recent Transactions',
+    viewAll: 'View all',
+    noTransactions: 'No transactions yet',
+    noTransactionsDesc: 'Add your first transaction to start tracking.',
+    addTransaction: 'Add transaction',
+    loadFailed: 'Failed to load dashboard',
+  },
+
+  // Transactions
+  transactions: {
+    title: 'Transactions',
+    allTypes: 'All types',
+    expensesFilter: 'Expenses',
+    incomeFilter: 'Income',
+    transfersFilter: 'Transfers',
+    noFound: 'No transactions found',
+    changeFilters: 'Try changing your filters.',
+    getStarted: 'Add your first transaction to get started.',
+    addTransaction: 'Add transaction',
+    previous: 'Previous',
+    next: 'Next',
+    pageOf: 'Page {page} of {total}',
+    loadFailed: 'Failed to load transactions',
+    // Form
+    editTitle: 'Edit Transaction',
+    addTitle: 'Add Transaction',
+    expense: 'Expense',
+    income: 'Income',
+    transfer: 'Transfer',
+    amount: 'Amount',
+    account: 'Account',
+    selectAccount: 'Select account',
+    category: 'Category',
+    noCategory: 'No category',
+    date: 'Date',
+    description: 'Description',
+    descriptionPlaceholder: 'What was this for?',
+    notes: 'Notes',
+    notesPlaceholder: 'Additional details...',
+    saveChanges: 'Save Changes',
+    saveFailed: 'Failed to save transaction',
+    loadFormFailed: 'Failed to load form data',
+  },
+
+  // Accounts
+  accounts: {
+    title: 'Accounts',
+    noAccounts: 'No accounts yet',
+    noAccountsDesc: 'Add your first account to start tracking balances.',
+    addAccount: 'Add account',
+    totalBalance: 'Total Balance',
+    archived: 'Archived',
+    loadFailed: 'Failed to load accounts',
+    createFailed: 'Failed to create account',
+    // Form
+    addTitle: 'Add account',
+    namePlaceholder: 'e.g. Main checking account',
+    typeBank: 'Bank',
+    typeCash: 'Cash',
+    typeSavings: 'Savings',
+    typeCredit: 'Credit Card',
+    typeInvestment: 'Investment',
+    openingBalance: 'Opening balance',
+  },
+
+  // Categories
+  categories: {
+    title: 'Categories',
+    noCategories: 'No {type} categories',
+    noCategoriesDesc: 'Categories help you organize your transactions.',
+    addCategory: 'Add category',
+    loadFailed: 'Failed to load categories',
+    createFailed: 'Failed to create category',
+    expenseTab: 'Expense',
+    incomeTab: 'Income',
+    // Form
+    addTitle: 'Add category',
+    namePlaceholder: 'e.g. Groceries',
+    kindExpense: 'Expense',
+    kindIncome: 'Income',
+    kindBoth: 'Both',
+    color: 'Color',
+  },
+
+  // Budgets
+  budgets: {
+    title: 'Budgets',
+    addLimit: '+ Add limit',
+    noPeriods: 'No budget periods',
+    noPeriodsDesc: 'Set up monthly budgets to track spending against limits for each category.',
+    createPeriod: 'Create budget period',
+    newPeriod: 'New period',
+    noLimits: 'No budget limits set',
+    noLimitsDesc: 'Add spending limits to categories to monitor your budget.',
+    addBudgetLimit: 'Add budget limit',
+    left: '{amount} left',
+    over: '{amount} over',
+    spent: '{amount} spent',
+    budgeted: '{amount} budgeted',
+    loadFailed: 'Failed to load budgets',
+    periodFailed: 'Failed to create budget period',
+    limitFailed: 'Failed to create budget limit',
+    period: '{type} period',
+    // Period form
+    periodType: 'Period type',
+    monthly: 'Monthly',
+    weekly: 'Weekly',
+    quarterly: 'Quarterly',
+    startDate: 'Start date',
+    endDate: 'End date',
+    // Limit form
+    limitCategory: 'Category',
+    limitAmount: 'Budget limit ({currency})',
+    noCategoriesWarning: 'No expense categories found. Create categories first.',
+    addLimitBtn: 'Add limit',
+  },
+
+  // Settings
+  settings: {
+    title: 'Settings',
+    profile: 'Profile',
+    workspace: 'Workspace',
+    switchWorkspace: 'Switch workspace',
+    noWorkspace: 'No workspace selected',
+    preferences: 'Preferences',
+    language: 'Language',
+    languageDesc: 'Choose the interface language',
+    sync: 'Sync',
+    lastSynced: 'Last synced',
+    never: 'Never',
+    justNow: 'Just now',
+    minutesAgo: '{n}m ago',
+    hoursAgo: '{n}h ago',
+    pendingChanges: 'Pending changes',
+    allSynced: 'All changes synced',
+    nPending: '{n} pending',
+    manualSync: 'Manual sync',
+    syncDesc: 'Force sync data with server',
+    syncing: 'Syncing...',
+    syncNow: 'Sync now',
+    device: 'Device',
+    platform: 'Platform',
+    online: 'Online',
+  },
+
+  // Workspaces
+  workspaces: {
+    title: 'Workspaces',
+    subtitle: 'Choose a workspace to manage',
+    noWorkspaces: 'No workspaces yet',
+    noWorkspacesDesc: 'Create your first workspace to start tracking your finances.',
+    createWorkspace: 'Create workspace',
+    createNew: 'Create new workspace',
+    loadFailed: 'Failed to load workspaces',
+    createFailed: 'Failed to create workspace',
+    manageWorkspaces: 'Manage workspaces',
+    selectWorkspace: 'Select workspace',
+    chooseWorkspace: 'Choose workspace',
+    noWorkspaceSelected: 'No workspace selected.',
+    // Types
+    typePersonal: 'Personal',
+    typeBusiness: 'Business',
+    typeCompany: 'Company',
+    typeShared: 'Shared',
+    baseCurrency: 'Base currency',
+    namePlaceholder: 'e.g. Household Budget',
+  },
+
+  // Currencies
+  currencies: {
+    PLN: 'PLN - Polish Zloty',
+    USD: 'USD - US Dollar',
+    EUR: 'EUR - Euro',
+    GBP: 'GBP - British Pound',
+    CZK: 'CZK - Czech Koruna',
+    CHF: 'CHF - Swiss Franc',
+    JPY: 'JPY - Japanese Yen',
+    CAD: 'CAD - Canadian Dollar',
+  },
+
+  // Errors
+  errors: {
+    somethingWrong: 'Something went wrong',
+    unexpectedError: 'An unexpected error occurred. Please try reloading the page.',
+    tryAgain: 'Try again',
+    defaultError: 'Something went wrong. Please try again.',
+  },
+
+  // Offline
+  offline: {
+    banner: "You're offline. Changes will sync when you reconnect.",
+  },
+
+  // Sync Badge
+  syncBadge: {
+    synced: 'Synced',
+    pending: '{n} pending',
+    offline: 'Offline',
+    syncing: 'Syncing...',
+    error: 'Sync error',
+  },
+
+  // Admin
+  admin: {
+    title: 'Administration',
+    users: 'Users',
+    workspaces: 'Workspaces',
+    usersTitle: 'User Management',
+    workspacesTitle: 'Workspace Management',
+    addUser: 'Add user',
+    editUser: 'Edit user',
+    displayName: 'Display name',
+    email: 'Email',
+    password: 'Password',
+    isAdmin: 'Administrator',
+    isActive: 'Active',
+    role: 'Role',
+    members: 'Members',
+    addMember: 'Add member',
+    removeMember: 'Remove member',
+    changeRole: 'Change role',
+    roleOwner: 'Owner',
+    roleEditor: 'Editor',
+    roleViewer: 'Viewer',
+    noUsers: 'No users found',
+    noMembers: 'No members in this workspace',
+    userCreated: 'User created successfully',
+    userUpdated: 'User updated successfully',
+    memberAdded: 'Member added successfully',
+    memberRemoved: 'Member removed successfully',
+    loadFailed: 'Failed to load data',
+    saveFailed: 'Failed to save changes',
+    confirmDeactivate: 'Are you sure you want to deactivate this user?',
+    selectUser: 'Select user',
+  },
+} as const;
+
+// Recursively map all leaf values to `string` so other locales can use their own text
+type DeepStringRecord<T> = {
+  [K in keyof T]: T[K] extends Record<string, unknown> ? DeepStringRecord<T[K]> : string;
+};
+
+export type Translations = DeepStringRecord<typeof en>;

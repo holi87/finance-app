@@ -23,6 +23,7 @@ export interface User {
   email: string;
   displayName: string;
   isActive: boolean;
+  isAdmin: boolean;
   createdAt: string;
   updatedAt: string;
   lastLoginAt: string | null;

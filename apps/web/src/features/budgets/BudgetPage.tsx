@@ -5,6 +5,7 @@ import { useWorkspace } from '@/features/workspaces/WorkspaceContext';
 import { api } from '@/services/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { EmptyState } from '@/components/EmptyState';
+import { useTranslation } from '@/i18n/I18nContext';
 
 interface BudgetLimitWithCategory extends BudgetLimit {
   categoryName?: string;
@@ -13,6 +14,7 @@ interface BudgetLimitWithCategory extends BudgetLimit {
 
 export function BudgetPage() {
   const { activeWorkspace } = useWorkspace();
+  const { t } = useTranslation();
   const [periods, setPeriods] = useState<BudgetPeriod[]>([]);
   const [limits, setLimits] = useState<BudgetLimitWithCategory[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -56,7 +58,7 @@ export function BudgetPage() {
         setLimits(enriched);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load budgets');
+      setError(err instanceof Error ? err.message : t.budgets.loadFailed);
     } finally {
       setIsLoading(false);
     }
@@ -76,13 +78,13 @@ export function BudgetPage() {
   return (
     <div className="px-4 py-6">
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-gray-900">Budgets</h1>
+        <h1 className="text-xl font-bold text-gray-900">{t.budgets.title}</h1>
         {periods.length > 0 && (
           <button
             onClick={() => setShowCreateLimit(true)}
             className="rounded-lg bg-blue-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-600"
           >
-            + Add limit
+            {t.budgets.addLimit}
           </button>
         )}
       </div>
@@ -91,16 +93,16 @@ export function BudgetPage() {
         <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
           <button onClick={loadBudgets} className="ml-2 font-medium underline">
-            Retry
+            {t.common.retry}
           </button>
         </div>
       )}
 
       {periods.length === 0 ? (
         <EmptyState
-          title="No budget periods"
-          description="Set up monthly budgets to track spending against limits for each category."
-          actionLabel="Create budget period"
+          title={t.budgets.noPeriods}
+          description={t.budgets.noPeriodsDesc}
+          actionLabel={t.budgets.createPeriod}
           onAction={() => setShowCreatePeriod(true)}
         />
       ) : (
@@ -111,7 +113,7 @@ export function BudgetPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-medium uppercase text-blue-600">
-                    {latestPeriod.periodType} period
+                    {t.budgets.period.replace('{type}', latestPeriod.periodType)}
                   </p>
                   <p className="text-sm text-blue-800">
                     {new Date(latestPeriod.startsAt).toLocaleDateString()} &mdash;{' '}
@@ -122,7 +124,7 @@ export function BudgetPage() {
                   onClick={() => setShowCreatePeriod(true)}
                   className="text-xs font-medium text-blue-600 hover:text-blue-800"
                 >
-                  New period
+                  {t.budgets.newPeriod}
                 </button>
               </div>
             </div>
@@ -130,9 +132,9 @@ export function BudgetPage() {
 
           {limits.length === 0 ? (
             <EmptyState
-              title="No budget limits set"
-              description="Add spending limits to categories to monitor your budget."
-              actionLabel="Add budget limit"
+              title={t.budgets.noLimits}
+              description={t.budgets.noLimitsDesc}
+              actionLabel={t.budgets.addBudgetLimit}
               onAction={() => setShowCreateLimit(true)}
             />
           ) : (
@@ -164,8 +166,8 @@ export function BudgetPage() {
                         }`}
                       >
                         {remaining >= 0
-                          ? `${formatAmount(remaining.toFixed(2), currency)} left`
-                          : `${formatAmount(Math.abs(remaining).toFixed(2), currency)} over`}
+                          ? t.budgets.left.replace('{amount}', formatAmount(remaining.toFixed(2), currency))
+                          : t.budgets.over.replace('{amount}', formatAmount(Math.abs(remaining).toFixed(2), currency))}
                       </span>
                     </div>
 
@@ -183,8 +185,8 @@ export function BudgetPage() {
                     </div>
 
                     <div className="flex justify-between text-xs text-gray-500">
-                      <span>{formatAmount(spent.toFixed(2), currency)} spent</span>
-                      <span>{formatAmount(budgeted.toFixed(2), currency)} budgeted</span>
+                      <span>{t.budgets.spent.replace('{amount}', formatAmount(spent.toFixed(2), currency))}</span>
+                      <span>{t.budgets.budgeted.replace('{amount}', formatAmount(budgeted.toFixed(2), currency))}</span>
                     </div>
                   </div>
                 );
@@ -233,6 +235,7 @@ interface CreatePeriodModalProps {
 }
 
 function CreatePeriodModal({ workspaceId, onClose, onCreated }: CreatePeriodModalProps) {
+  const { t } = useTranslation();
   const now = new Date();
   const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
   const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
@@ -256,7 +259,7 @@ function CreatePeriodModal({ workspaceId, onClose, onCreated }: CreatePeriodModa
       });
       onCreated();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create budget period');
+      setError(err instanceof Error ? err.message : t.budgets.periodFailed);
     } finally {
       setIsSubmitting(false);
     }
@@ -265,7 +268,7 @@ function CreatePeriodModal({ workspaceId, onClose, onCreated }: CreatePeriodModa
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-        <h2 className="mb-4 text-lg font-bold text-gray-900">Create budget period</h2>
+        <h2 className="mb-4 text-lg font-bold text-gray-900">{t.budgets.createPeriod}</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
@@ -276,7 +279,7 @@ function CreatePeriodModal({ workspaceId, onClose, onCreated }: CreatePeriodModa
 
           <div>
             <label htmlFor="bp-type" className="block text-sm font-medium text-gray-700">
-              Period type
+              {t.budgets.periodType}
             </label>
             <select
               id="bp-type"
@@ -284,15 +287,15 @@ function CreatePeriodModal({ workspaceId, onClose, onCreated }: CreatePeriodModa
               onChange={(e) => setPeriodType(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
             >
-              <option value="monthly">Monthly</option>
-              <option value="weekly">Weekly</option>
-              <option value="quarterly">Quarterly</option>
+              <option value="monthly">{t.budgets.monthly}</option>
+              <option value="weekly">{t.budgets.weekly}</option>
+              <option value="quarterly">{t.budgets.quarterly}</option>
             </select>
           </div>
 
           <div>
             <label htmlFor="bp-start" className="block text-sm font-medium text-gray-700">
-              Start date
+              {t.budgets.startDate}
             </label>
             <input
               id="bp-start"
@@ -306,7 +309,7 @@ function CreatePeriodModal({ workspaceId, onClose, onCreated }: CreatePeriodModa
 
           <div>
             <label htmlFor="bp-end" className="block text-sm font-medium text-gray-700">
-              End date
+              {t.budgets.endDate}
             </label>
             <input
               id="bp-end"
@@ -324,14 +327,14 @@ function CreatePeriodModal({ workspaceId, onClose, onCreated }: CreatePeriodModa
               onClick={onClose}
               className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
             >
-              Cancel
+              {t.common.cancel}
             </button>
             <button
               type="submit"
               disabled={isSubmitting || !startsAt || !endsAt}
               className="flex flex-1 items-center justify-center rounded-lg bg-blue-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmitting ? <LoadingSpinner size="sm" /> : 'Create'}
+              {isSubmitting ? <LoadingSpinner size="sm" /> : t.common.create}
             </button>
           </div>
         </form>
@@ -352,6 +355,7 @@ interface CreateLimitModalProps {
 }
 
 function CreateLimitModal({ workspaceId, periodId, categories, currency, onClose, onCreated }: CreateLimitModalProps) {
+  const { t } = useTranslation();
   const [categoryId, setCategoryId] = useState(categories[0]?.id ?? '');
   const [amount, setAmount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -371,7 +375,7 @@ function CreateLimitModal({ workspaceId, periodId, categories, currency, onClose
       });
       onCreated();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create budget limit');
+      setError(err instanceof Error ? err.message : t.budgets.limitFailed);
     } finally {
       setIsSubmitting(false);
     }
@@ -380,7 +384,7 @@ function CreateLimitModal({ workspaceId, periodId, categories, currency, onClose
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-        <h2 className="mb-4 text-lg font-bold text-gray-900">Add budget limit</h2>
+        <h2 className="mb-4 text-lg font-bold text-gray-900">{t.budgets.addBudgetLimit}</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
@@ -391,13 +395,13 @@ function CreateLimitModal({ workspaceId, periodId, categories, currency, onClose
 
           {categories.length === 0 ? (
             <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
-              No expense categories found. Create categories first.
+              {t.budgets.noCategoriesWarning}
             </div>
           ) : (
             <>
               <div>
                 <label htmlFor="bl-category" className="block text-sm font-medium text-gray-700">
-                  Category
+                  {t.budgets.limitCategory}
                 </label>
                 <select
                   id="bl-category"
@@ -415,7 +419,7 @@ function CreateLimitModal({ workspaceId, periodId, categories, currency, onClose
 
               <div>
                 <label htmlFor="bl-amount" className="block text-sm font-medium text-gray-700">
-                  Budget limit ({currency})
+                  {t.budgets.limitAmount.replace('{currency}', currency)}
                 </label>
                 <input
                   id="bl-amount"
@@ -438,14 +442,14 @@ function CreateLimitModal({ workspaceId, periodId, categories, currency, onClose
               onClick={onClose}
               className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
             >
-              Cancel
+              {t.common.cancel}
             </button>
             <button
               type="submit"
               disabled={isSubmitting || !amount || categories.length === 0}
               className="flex flex-1 items-center justify-center rounded-lg bg-blue-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmitting ? <LoadingSpinner size="sm" /> : 'Add limit'}
+              {isSubmitting ? <LoadingSpinner size="sm" /> : t.budgets.addLimitBtn}
             </button>
           </div>
         </form>

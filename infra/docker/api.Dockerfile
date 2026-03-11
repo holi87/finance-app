@@ -63,11 +63,18 @@ RUN pnpm --filter @budget-tracker/api run prisma:generate
 # Copy built output
 COPY --from=build /app/apps/api/dist apps/api/dist
 
+# Copy entrypoint and seed
+COPY apps/api/docker-entrypoint.sh /app/docker-entrypoint.sh
+COPY apps/api/prisma/seed.ts apps/api/prisma/seed.ts
+
+# Install tsx for running seed in production
+RUN pnpm add -w tsx
+
 USER appuser
 
 EXPOSE 3000
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
   CMD node -e "fetch('http://localhost:3000/api/v1/health').then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))"
 
-CMD ["node", "apps/api/dist/main.js"]
+ENTRYPOINT ["/bin/sh", "/app/docker-entrypoint.sh"]

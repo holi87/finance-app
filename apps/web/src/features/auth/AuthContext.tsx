@@ -14,6 +14,7 @@ interface AuthUser {
   id: string;
   email: string;
   displayName: string;
+  isAdmin: boolean;
 }
 
 interface AuthState {
@@ -73,12 +74,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser(storedUser);
       // Validate token by fetching profile
       api
-        .get<Pick<User, 'id' | 'email' | 'displayName'>>('/api/users/me')
+        .get<Pick<User, 'id' | 'email' | 'displayName' | 'isAdmin'>>('/api/users/me')
         .then((profile) => {
           const authUser: AuthUser = {
             id: profile.id,
             email: profile.email,
             displayName: profile.displayName,
+            isAdmin: profile.isAdmin ?? false,
           };
           setUser(authUser);
           storeUser(authUser);
@@ -104,6 +106,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       id: response.user.id,
       email: response.user.email,
       displayName: response.user.displayName,
+      isAdmin: response.user.isAdmin ?? false,
     };
     storeUser(authUser);
     setUser(authUser);

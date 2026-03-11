@@ -3,11 +3,13 @@ import { useAuth } from '@/features/auth/AuthContext';
 import { useWorkspace } from '@/features/workspaces/WorkspaceContext';
 import { useNavigate } from 'react-router-dom';
 import { onSyncStatusChange, syncWorkspace, type SyncStatus } from '@/sync/sync-orchestrator';
+import { useTranslation, type Locale } from '@/i18n/I18nContext';
 
 export function SettingsPage() {
   const { user, logout } = useAuth();
   const { activeWorkspace } = useWorkspace();
   const navigate = useNavigate();
+  const { t, locale, setLocale } = useTranslation();
 
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({
     state: navigator.onLine ? 'idle' : 'offline',
@@ -32,19 +34,19 @@ export function SettingsPage() {
   }
 
   function formatLastSynced(iso: string | null): string {
-    if (!iso) return 'Never';
+    if (!iso) return t.settings.never;
     const date = new Date(iso);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMin = Math.floor(diffMs / 60_000);
 
-    if (diffMin < 1) return 'Just now';
-    if (diffMin < 60) return `${diffMin}m ago`;
+    if (diffMin < 1) return t.settings.justNow;
+    if (diffMin < 60) return t.settings.minutesAgo.replace('{n}', String(diffMin));
 
     const diffHr = Math.floor(diffMin / 60);
-    if (diffHr < 24) return `${diffHr}h ago`;
+    if (diffHr < 24) return t.settings.hoursAgo.replace('{n}', String(diffHr));
 
-    return date.toLocaleDateString(undefined, {
+    return date.toLocaleDateString(locale === 'pl' ? 'pl-PL' : 'en-US', {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
@@ -54,12 +56,12 @@ export function SettingsPage() {
 
   return (
     <div className="px-4 py-6">
-      <h1 className="mb-6 text-xl font-bold text-gray-900">Settings</h1>
+      <h1 className="mb-6 text-xl font-bold text-gray-900">{t.settings.title}</h1>
 
       {/* Profile section */}
       <section className="mb-6">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
-          Profile
+          {t.settings.profile}
         </h2>
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
           <div className="flex items-center gap-4 p-4">
@@ -79,21 +81,21 @@ export function SettingsPage() {
       {/* Workspace section */}
       <section className="mb-6">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
-          Workspace
+          {t.settings.workspace}
         </h2>
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
           {activeWorkspace ? (
             <>
               <div className="border-b border-gray-100 px-4 py-3">
-                <p className="text-xs text-gray-500">Name</p>
+                <p className="text-xs text-gray-500">{t.common.name}</p>
                 <p className="text-sm font-medium text-gray-900">{activeWorkspace.name}</p>
               </div>
               <div className="border-b border-gray-100 px-4 py-3">
-                <p className="text-xs text-gray-500">Type</p>
+                <p className="text-xs text-gray-500">{t.common.type}</p>
                 <p className="text-sm capitalize text-gray-900">{activeWorkspace.type}</p>
               </div>
               <div className="border-b border-gray-100 px-4 py-3">
-                <p className="text-xs text-gray-500">Currency</p>
+                <p className="text-xs text-gray-500">{t.common.currency}</p>
                 <p className="text-sm text-gray-900">{activeWorkspace.baseCurrency}</p>
               </div>
               <div className="px-4 py-3">
@@ -101,95 +103,109 @@ export function SettingsPage() {
                   onClick={() => navigate('/workspaces')}
                   className="text-sm font-medium text-blue-500 hover:text-blue-600"
                 >
-                  Switch workspace
+                  {t.settings.switchWorkspace}
                 </button>
               </div>
             </>
           ) : (
             <div className="px-4 py-3">
-              <p className="text-sm text-gray-500">No workspace selected</p>
+              <p className="text-sm text-gray-500">{t.settings.noWorkspace}</p>
             </div>
           )}
         </div>
       </section>
 
-      {/* Preferences placeholder */}
+      {/* Preferences — Language switcher */}
       <section className="mb-6">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
-          Preferences
+          {t.settings.preferences}
         </h2>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <p className="text-sm text-gray-400">
-            Preferences and customization options will be available here.
-          </p>
+        <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between px-4 py-3">
+            <div>
+              <p className="text-sm font-medium text-gray-900">{t.settings.language}</p>
+              <p className="text-xs text-gray-500">{t.settings.languageDesc}</p>
+            </div>
+            <div className="flex rounded-lg border border-gray-300 p-0.5">
+              {(['pl', 'en'] as Locale[]).map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => setLocale(lang)}
+                  className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                    locale === lang
+                      ? 'bg-blue-500 text-white'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  {lang.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Sync section */}
       <section className="mb-6">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
-          Sync
+          {t.settings.sync}
         </h2>
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-          {/* Last synced */}
           <div className="border-b border-gray-100 px-4 py-3">
-            <p className="text-xs text-gray-500">Last synced</p>
+            <p className="text-xs text-gray-500">{t.settings.lastSynced}</p>
             <p className="text-sm font-medium text-gray-900">
               {formatLastSynced(syncStatus.lastSyncedAt)}
             </p>
           </div>
 
-          {/* Pending changes */}
           <div className="border-b border-gray-100 px-4 py-3">
-            <p className="text-xs text-gray-500">Pending changes</p>
+            <p className="text-xs text-gray-500">{t.settings.pendingChanges}</p>
             <p className="text-sm font-medium text-gray-900">
               {syncStatus.pendingChanges === 0
-                ? 'All changes synced'
-                : `${syncStatus.pendingChanges} pending`}
+                ? t.settings.allSynced
+                : t.settings.nPending.replace('{n}', String(syncStatus.pendingChanges))}
             </p>
           </div>
 
-          {/* Sync error */}
           {syncStatus.error && (
             <div className="border-b border-gray-100 px-4 py-3">
-              <p className="text-xs text-gray-500">Error</p>
+              <p className="text-xs text-gray-500">{t.common.error}</p>
               <p className="text-sm text-red-600">{syncStatus.error}</p>
             </div>
           )}
 
-          {/* Sync now button */}
           <div className="flex items-center justify-between px-4 py-3">
             <div>
-              <p className="text-sm font-medium text-gray-900">Manual sync</p>
-              <p className="text-xs text-gray-500">Force sync data with server</p>
+              <p className="text-sm font-medium text-gray-900">{t.settings.manualSync}</p>
+              <p className="text-xs text-gray-500">{t.settings.syncDesc}</p>
             </div>
             <button
               className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
               onClick={handleSyncNow}
               disabled={syncStatus.state === 'syncing' || syncStatus.state === 'offline'}
             >
-              {syncStatus.state === 'syncing' ? 'Syncing...' : 'Sync now'}
+              {syncStatus.state === 'syncing' ? t.settings.syncing : t.settings.syncNow}
             </button>
           </div>
         </div>
       </section>
 
-      {/* Device info placeholder */}
+      {/* Device info */}
       <section className="mb-8">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
-          Device
+          {t.settings.device}
         </h2>
         <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-500">Platform</span>
+              <span className="text-gray-500">{t.settings.platform}</span>
               <span className="text-gray-900">
                 {navigator.userAgent.includes('iPhone') ? 'iOS PWA' : 'Web'}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">Online</span>
-              <span className="text-gray-900">{navigator.onLine ? 'Yes' : 'No'}</span>
+              <span className="text-gray-500">{t.settings.online}</span>
+              <span className="text-gray-900">{navigator.onLine ? t.common.yes : t.common.no}</span>
             </div>
           </div>
         </div>
@@ -200,7 +216,7 @@ export function SettingsPage() {
         onClick={handleLogout}
         className="w-full rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100"
       >
-        Sign out
+        {t.auth.signOut}
       </button>
     </div>
   );

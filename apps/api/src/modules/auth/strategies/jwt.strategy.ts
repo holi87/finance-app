@@ -7,6 +7,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 export interface JwtPayload {
   sub: string;
   email: string;
+  isAdmin?: boolean;
 }
 
 @Injectable()
@@ -25,13 +26,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayload) {
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
-      select: { id: true, email: true, displayName: true, isActive: true },
+      select: { id: true, email: true, displayName: true, isActive: true, isAdmin: true },
     });
 
     if (!user || !user.isActive) {
       throw new UnauthorizedException('User not found or inactive');
     }
 
-    return { id: user.id, email: user.email, displayName: user.displayName };
+    return { id: user.id, email: user.email, displayName: user.displayName, isAdmin: user.isAdmin };
   }
 }

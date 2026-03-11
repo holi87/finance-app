@@ -1,24 +1,20 @@
-{
-    # Global options
-    email admin@budget.local
-}
-
-{$DOMAIN:budget.local} {
+# Production Caddyfile — HTTP only (port 80 inside container)
+:80 {
     # Security headers
     header {
         X-Content-Type-Options "nosniff"
         X-Frame-Options "DENY"
         X-XSS-Protection "1; mode=block"
         Referrer-Policy "strict-origin-when-cross-origin"
-        Strict-Transport-Security "max-age=31536000; includeSubDomains"
         -Server
     }
 
     # Gzip compression
     encode gzip
 
-    # API routes -> backend service
+    # API routes -> backend service (rewrite /api/* to /api/v1/*)
     handle /api/* {
+        uri replace /api/ /api/v1/ 1
         reverse_proxy api:3000
     }
 

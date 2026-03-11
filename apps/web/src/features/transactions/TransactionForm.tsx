@@ -3,10 +3,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import type { Account, Category, Transaction, CreateTransactionRequest } from '@budget-tracker/shared-types';
 import { TransactionType, CategoryKind } from '@budget-tracker/shared-types';
 import { useWorkspace } from '@/features/workspaces/WorkspaceContext';
+import { useTranslation } from '@/i18n/I18nContext';
 import { api } from '@/services/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 export function TransactionForm() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { activeWorkspace } = useWorkspace();
@@ -69,7 +71,7 @@ export function TransactionForm() {
         setNotes(tx.notes ?? '');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load form data');
+      setError(err instanceof Error ? err.message : t.transactions.loadFormFailed);
     } finally {
       setIsLoading(false);
     }
@@ -109,7 +111,7 @@ export function TransactionForm() {
 
       navigate('/transactions');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save transaction');
+      setError(err instanceof Error ? err.message : t.transactions.saveFailed);
     } finally {
       setIsSubmitting(false);
     }
@@ -136,7 +138,7 @@ export function TransactionForm() {
     <div className="px-4 py-6">
       <div className="mx-auto max-w-lg">
         <h1 className="mb-6 text-xl font-bold text-gray-900">
-          {isEditing ? 'Edit Transaction' : 'Add Transaction'}
+          {isEditing ? t.transactions.editTitle : t.transactions.addTitle}
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -148,12 +150,12 @@ export function TransactionForm() {
 
           {/* Transaction type */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">Type</label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">{t.common.type}</label>
             <div className="grid grid-cols-3 gap-2">
               {[
-                { value: TransactionType.EXPENSE, label: 'Expense', color: 'red' },
-                { value: TransactionType.INCOME, label: 'Income', color: 'green' },
-                { value: TransactionType.TRANSFER, label: 'Transfer', color: 'blue' },
+                { value: TransactionType.EXPENSE, label: t.transactions.expense, color: 'red' },
+                { value: TransactionType.INCOME, label: t.transactions.income, color: 'green' },
+                { value: TransactionType.TRANSFER, label: t.transactions.transfer, color: 'blue' },
               ].map((option) => (
                 <button
                   key={option.value}
@@ -179,7 +181,7 @@ export function TransactionForm() {
           {/* Amount */}
           <div>
             <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
-              Amount
+              {t.transactions.amount}
             </label>
             <div className="relative mt-1">
               <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
@@ -202,7 +204,7 @@ export function TransactionForm() {
           {/* Account */}
           <div>
             <label htmlFor="account" className="block text-sm font-medium text-gray-700">
-              Account
+              {t.transactions.account}
             </label>
             <select
               id="account"
@@ -212,7 +214,7 @@ export function TransactionForm() {
               disabled={isEditing}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none disabled:bg-gray-100"
             >
-              <option value="">Select account</option>
+              <option value="">{t.transactions.selectAccount}</option>
               {accounts.map((account) => (
                 <option key={account.id} value={account.id}>
                   {account.name} ({account.type})
@@ -225,7 +227,7 @@ export function TransactionForm() {
           {type !== TransactionType.TRANSFER && (
             <div>
               <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-                Category
+                {t.transactions.category}
               </label>
               <select
                 id="category"
@@ -233,7 +235,7 @@ export function TransactionForm() {
                 onChange={(e) => setCategoryId(e.target.value)}
                 className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
               >
-                <option value="">No category</option>
+                <option value="">{t.transactions.noCategory}</option>
                 {filteredCategories.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
@@ -246,7 +248,7 @@ export function TransactionForm() {
           {/* Date */}
           <div>
             <label htmlFor="date" className="block text-sm font-medium text-gray-700">
-              Date
+              {t.transactions.date}
             </label>
             <input
               id="date"
@@ -261,7 +263,7 @@ export function TransactionForm() {
           {/* Description */}
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-              Description
+              {t.transactions.description}
             </label>
             <input
               id="description"
@@ -269,7 +271,7 @@ export function TransactionForm() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               maxLength={255}
-              placeholder="What was this for?"
+              placeholder={t.transactions.descriptionPlaceholder}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
             />
           </div>
@@ -277,8 +279,8 @@ export function TransactionForm() {
           {/* Notes */}
           <div>
             <label htmlFor="notes" className="block text-sm font-medium text-gray-700">
-              Notes
-              <span className="ml-1 text-gray-400">(optional)</span>
+              {t.transactions.notes}
+              <span className="ml-1 text-gray-400">{t.common.optional}</span>
             </label>
             <textarea
               id="notes"
@@ -286,7 +288,7 @@ export function TransactionForm() {
               onChange={(e) => setNotes(e.target.value)}
               maxLength={1000}
               rows={2}
-              placeholder="Additional details..."
+              placeholder={t.transactions.notesPlaceholder}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
             />
           </div>
@@ -298,7 +300,7 @@ export function TransactionForm() {
               onClick={() => navigate(-1)}
               className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
             >
-              Cancel
+              {t.common.cancel}
             </button>
             <button
               type="submit"
@@ -308,9 +310,9 @@ export function TransactionForm() {
               {isSubmitting ? (
                 <LoadingSpinner size="sm" />
               ) : isEditing ? (
-                'Save Changes'
+                t.transactions.saveChanges
               ) : (
-                'Add Transaction'
+                t.transactions.addTitle
               )}
             </button>
           </div>

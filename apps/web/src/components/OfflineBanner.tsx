@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from '@/i18n/I18nContext';
 
 export function OfflineBanner() {
+  const { t } = useTranslation();
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
   useEffect(() => {
@@ -43,7 +45,7 @@ export function OfflineBanner() {
           d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
         />
       </svg>
-      <span>You're offline. Changes will sync when you reconnect.</span>
+      <span>{t.offline.banner}</span>
     </div>
   );
 }

@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import type { Account } from '@budget-tracker/shared-types';
 import { useWorkspace } from '@/features/workspaces/WorkspaceContext';
+import { useTranslation } from '@/i18n/I18nContext';
 import { api } from '@/services/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { EmptyState } from '@/components/EmptyState';
 
 export function AccountListPage() {
+  const { t } = useTranslation();
   const { activeWorkspace } = useWorkspace();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -28,7 +30,7 @@ export function AccountListPage() {
       );
       setAccounts(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load accounts');
+      setError(err instanceof Error ? err.message : t.accounts.loadFailed);
     } finally {
       setIsLoading(false);
     }
@@ -54,12 +56,12 @@ export function AccountListPage() {
   return (
     <div className="px-4 py-6">
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-gray-900">Accounts</h1>
+        <h1 className="text-xl font-bold text-gray-900">{t.accounts.title}</h1>
         <button
           onClick={() => setShowCreateForm(true)}
           className="rounded-lg bg-blue-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-600"
         >
-          + Add
+          {t.common.add}
         </button>
       </div>
 
@@ -67,23 +69,23 @@ export function AccountListPage() {
         <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
           <button onClick={loadAccounts} className="ml-2 font-medium underline">
-            Retry
+            {t.common.retry}
           </button>
         </div>
       )}
 
       {accounts.length === 0 ? (
         <EmptyState
-          title="No accounts yet"
-          description="Add your first account to start tracking balances."
-          actionLabel="Add account"
+          title={t.accounts.noAccounts}
+          description={t.accounts.noAccountsDesc}
+          actionLabel={t.accounts.addAccount}
           onAction={() => setShowCreateForm(true)}
         />
       ) : (
         <>
           {/* Total balance */}
           <div className="mb-6 rounded-xl bg-blue-500 p-4 text-white shadow-sm">
-            <p className="text-xs font-medium text-blue-100">Total Balance</p>
+            <p className="text-xs font-medium text-blue-100">{t.accounts.totalBalance}</p>
             <p className="mt-1 text-2xl font-bold tabular-nums">
               {formatAmount(totalBalance.toFixed(2), currency)}
             </p>
@@ -116,7 +118,7 @@ export function AccountListPage() {
           {archivedAccounts.length > 0 && (
             <div className="mt-8">
               <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-400">
-                Archived
+                {t.accounts.archived}
               </h2>
               <div className="space-y-2">
                 {archivedAccounts.map((account) => (
@@ -163,6 +165,7 @@ interface CreateAccountModalProps {
 }
 
 function CreateAccountModal({ workspaceId, defaultCurrency, onClose, onCreated }: CreateAccountModalProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [type, setType] = useState('bank');
   const [currency, setCurrency] = useState(defaultCurrency);
@@ -184,7 +187,7 @@ function CreateAccountModal({ workspaceId, defaultCurrency, onClose, onCreated }
       });
       onCreated();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create account');
+      setError(err instanceof Error ? err.message : t.accounts.createFailed);
     } finally {
       setIsSubmitting(false);
     }
@@ -193,7 +196,7 @@ function CreateAccountModal({ workspaceId, defaultCurrency, onClose, onCreated }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-        <h2 className="mb-4 text-lg font-bold text-gray-900">Add account</h2>
+        <h2 className="mb-4 text-lg font-bold text-gray-900">{t.accounts.addTitle}</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
@@ -204,7 +207,7 @@ function CreateAccountModal({ workspaceId, defaultCurrency, onClose, onCreated }
 
           <div>
             <label htmlFor="acc-name" className="block text-sm font-medium text-gray-700">
-              Name
+              {t.common.name}
             </label>
             <input
               id="acc-name"
@@ -213,14 +216,14 @@ function CreateAccountModal({ workspaceId, defaultCurrency, onClose, onCreated }
               onChange={(e) => setName(e.target.value)}
               required
               maxLength={100}
-              placeholder="e.g. Main checking account"
+              placeholder={t.accounts.namePlaceholder}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
             />
           </div>
 
           <div>
             <label htmlFor="acc-type" className="block text-sm font-medium text-gray-700">
-              Type
+              {t.common.type}
             </label>
             <select
               id="acc-type"
@@ -228,17 +231,17 @@ function CreateAccountModal({ workspaceId, defaultCurrency, onClose, onCreated }
               onChange={(e) => setType(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
             >
-              <option value="bank">Bank</option>
-              <option value="cash">Cash</option>
-              <option value="savings">Savings</option>
-              <option value="credit">Credit Card</option>
-              <option value="investment">Investment</option>
+              <option value="bank">{t.accounts.typeBank}</option>
+              <option value="cash">{t.accounts.typeCash}</option>
+              <option value="savings">{t.accounts.typeSavings}</option>
+              <option value="credit">{t.accounts.typeCredit}</option>
+              <option value="investment">{t.accounts.typeInvestment}</option>
             </select>
           </div>
 
           <div>
             <label htmlFor="acc-currency" className="block text-sm font-medium text-gray-700">
-              Currency
+              {t.common.currency}
             </label>
             <select
               id="acc-currency"
@@ -246,18 +249,18 @@ function CreateAccountModal({ workspaceId, defaultCurrency, onClose, onCreated }
               onChange={(e) => setCurrency(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
             >
-              <option value="PLN">PLN - Polish Zloty</option>
-              <option value="USD">USD - US Dollar</option>
-              <option value="EUR">EUR - Euro</option>
-              <option value="GBP">GBP - British Pound</option>
-              <option value="CZK">CZK - Czech Koruna</option>
-              <option value="CHF">CHF - Swiss Franc</option>
+              <option value="PLN">{t.currencies.PLN}</option>
+              <option value="USD">{t.currencies.USD}</option>
+              <option value="EUR">{t.currencies.EUR}</option>
+              <option value="GBP">{t.currencies.GBP}</option>
+              <option value="CZK">{t.currencies.CZK}</option>
+              <option value="CHF">{t.currencies.CHF}</option>
             </select>
           </div>
 
           <div>
             <label htmlFor="acc-balance" className="block text-sm font-medium text-gray-700">
-              Opening balance
+              {t.accounts.openingBalance}
             </label>
             <input
               id="acc-balance"
@@ -276,14 +279,14 @@ function CreateAccountModal({ workspaceId, defaultCurrency, onClose, onCreated }
               onClick={onClose}
               className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
             >
-              Cancel
+              {t.common.cancel}
             </button>
             <button
               type="submit"
               disabled={isSubmitting || !name.trim()}
               className="flex flex-1 items-center justify-center rounded-lg bg-blue-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmitting ? <LoadingSpinner size="sm" /> : 'Add account'}
+              {isSubmitting ? <LoadingSpinner size="sm" /> : t.accounts.addAccount}
             </button>
           </div>
         </form>

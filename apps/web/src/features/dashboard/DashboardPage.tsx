@@ -5,6 +5,7 @@ import { useWorkspace } from '@/features/workspaces/WorkspaceContext';
 import { api } from '@/services/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { EmptyState } from '@/components/EmptyState';
+import { useTranslation } from '@/i18n/I18nContext';
 
 interface DashboardData {
   summary: ReportSummary | null;
@@ -13,6 +14,7 @@ interface DashboardData {
 
 export function DashboardPage() {
   const { activeWorkspace } = useWorkspace();
+  const { t } = useTranslation();
   const [data, setData] = useState<DashboardData>({
     summary: null,
     recentTransactions: [],
@@ -44,7 +46,7 @@ export function DashboardPage() {
           transactions.status === 'fulfilled' ? transactions.value.items : [],
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load dashboard');
+      setError(err instanceof Error ? err.message : t.dashboard.loadFailed);
     } finally {
       setIsLoading(false);
     }
@@ -64,7 +66,7 @@ export function DashboardPage() {
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
           <button onClick={loadDashboard} className="ml-2 font-medium underline">
-            Retry
+            {t.common.retry}
           </button>
         </div>
       </div>
@@ -78,19 +80,19 @@ export function DashboardPage() {
       {/* Balance cards */}
       <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <BalanceCard
-          label="Total Balance"
+          label={t.dashboard.totalBalance}
           amount={data.summary?.balance ?? '0.00'}
           currency={currency}
           variant="primary"
         />
         <BalanceCard
-          label="Income"
+          label={t.dashboard.income}
           amount={data.summary?.incomeTotal ?? '0.00'}
           currency={currency}
           variant="success"
         />
         <BalanceCard
-          label="Expenses"
+          label={t.dashboard.expenses}
           amount={data.summary?.expenseTotal ?? '0.00'}
           currency={currency}
           variant="danger"
@@ -100,17 +102,17 @@ export function DashboardPage() {
       {/* Budget utilization placeholder */}
       <section className="mb-6">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
-          Budget Summary
+          {t.dashboard.budgetSummary}
         </h2>
         <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
           <p className="text-sm text-gray-400">
-            Budget utilization will appear here once budgets are set up.
+            {t.dashboard.budgetPlaceholder}
           </p>
           <Link
             to="/budgets"
             className="mt-2 inline-block text-sm font-medium text-blue-500 hover:text-blue-600"
           >
-            Set up budgets
+            {t.dashboard.setupBudgets}
           </Link>
         </div>
       </section>
@@ -119,21 +121,21 @@ export function DashboardPage() {
       <section>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
-            Recent Transactions
+            {t.dashboard.recentTransactions}
           </h2>
           <Link
             to="/transactions"
             className="text-sm font-medium text-blue-500 hover:text-blue-600"
           >
-            View all
+            {t.dashboard.viewAll}
           </Link>
         </div>
 
         {data.recentTransactions.length === 0 ? (
           <EmptyState
-            title="No transactions yet"
-            description="Add your first transaction to start tracking."
-            actionLabel="Add transaction"
+            title={t.dashboard.noTransactions}
+            description={t.dashboard.noTransactionsDesc}
+            actionLabel={t.dashboard.addTransaction}
             actionTo="/transactions/new"
           />
         ) : (
@@ -188,6 +190,7 @@ interface TransactionRowProps {
 }
 
 function TransactionRow({ transaction, currency }: TransactionRowProps) {
+  const { t } = useTranslation();
   const isExpense = transaction.type === 'expense';
   const isIncome = transaction.type === 'income';
 
@@ -209,7 +212,7 @@ function TransactionRow({ transaction, currency }: TransactionRowProps) {
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-gray-900">
-          {transaction.description ?? 'Untitled'}
+          {transaction.description ?? t.common.untitled}
         </p>
         <p className="text-xs text-gray-500">{formatDate(transaction.transactionDate)}</p>
       </div>

@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWorkspace } from './WorkspaceContext';
+import { useTranslation } from '@/i18n/I18nContext';
 
 export function WorkspaceSwitcher() {
   const { workspaces, activeWorkspace, switchWorkspace } = useWorkspace();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -51,7 +53,7 @@ export function WorkspaceSwitcher() {
         <div
           className="absolute left-0 z-50 mt-1 w-64 rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
           role="listbox"
-          aria-label="Select workspace"
+          aria-label={t.workspaces.selectWorkspace}
         >
           {workspaces.map((workspace) => (
             <button
@@ -109,7 +111,7 @@ export function WorkspaceSwitcher() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
             </span>
-            <span className="font-medium">Manage workspaces</span>
+            <span className="font-medium">{t.workspaces.manageWorkspaces}</span>
           </button>
         </div>
       )}

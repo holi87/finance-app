@@ -4,6 +4,7 @@ import { WorkspaceProvider } from '@/features/workspaces/WorkspaceContext';
 import { ProtectedRoute } from '@/features/auth/ProtectedRoute';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { OfflineBanner } from '@/components/OfflineBanner';
+import { I18nProvider } from '@/i18n/I18nContext';
 import { LoginPage } from '@/features/auth/LoginPage';
 import { WorkspaceListPage } from '@/features/workspaces/WorkspaceListPage';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
@@ -14,10 +15,14 @@ import { CategoryListPage } from '@/features/categories/CategoryListPage';
 import { BudgetPage } from '@/features/budgets/BudgetPage';
 import { SettingsPage } from '@/features/settings/SettingsPage';
 import { AppLayout } from '@/layouts/AppLayout';
+import { AdminLayout } from '@/features/admin/AdminLayout';
+import { AdminUsersPage } from '@/features/admin/AdminUsersPage';
+import { AdminWorkspacesPage } from '@/features/admin/AdminWorkspacesPage';
 
 export function App() {
   return (
     <ErrorBoundary>
+      <I18nProvider>
       <OfflineBanner />
       <BrowserRouter>
         <AuthProvider>
@@ -28,6 +33,13 @@ export function App() {
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
               <Route path="/workspaces" element={<WorkspaceListPage />} />
+
+              {/* Admin routes */}
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<Navigate to="/admin/users" replace />} />
+                <Route path="users" element={<AdminUsersPage />} />
+                <Route path="workspaces" element={<AdminWorkspacesPage />} />
+              </Route>
 
               {/* Workspace-scoped routes */}
               <Route
@@ -53,6 +65,7 @@ export function App() {
           </Routes>
         </AuthProvider>
       </BrowserRouter>
+      </I18nProvider>
     </ErrorBoundary>
   );
 }
