@@ -45,6 +45,7 @@ export const pl: Translations = {
     settings: 'Ustawienia',
     admin: 'Admin',
     addTransaction: 'Dodaj transakcję',
+    reminders: 'Przypomnienia',
   },
 
   // Dashboard
@@ -271,6 +272,24 @@ export const pl: Translations = {
     dismissed: 'Przypomnienie odrzucone',
     loadFailed: 'Nie udało się załadować przypomnień',
     actionFailed: 'Nie udało się przetworzyć przypomnienia',
+    // List page
+    noReminders: 'Brak przypomnień',
+    noRemindersDesc: 'Utwórz przypomnienie, aby zaplanować przyszłe transakcje.',
+    addReminder: 'Dodaj przypomnienie',
+    statusPending: 'Oczekujące',
+    statusCompleted: 'Wykonane',
+    statusDismissed: 'Odrzucone',
+    allStatuses: 'Wszystkie statusy',
+    deleteConfirm: 'Czy na pewno chcesz usunąć to przypomnienie?',
+    deleteFailed: 'Nie udało się usunąć przypomnienia',
+    // Form
+    addTitle: 'Dodaj przypomnienie',
+    editTitle: 'Edytuj przypomnienie',
+    reminderDate: 'Data przypomnienia',
+    reminderDateHint: 'Kiedy powinno pojawić się przypomnienie?',
+    saveFailed: 'Nie udało się zapisać przypomnienia',
+    loadFormFailed: 'Nie udało się załadować danych formularza',
+    saveChanges: 'Zapisz zmiany',
   },
 
   // Admin

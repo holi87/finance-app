@@ -43,6 +43,7 @@ export const en = {
     settings: 'Settings',
     admin: 'Admin',
     addTransaction: 'Add transaction',
+    reminders: 'Reminders',
   },
 
   // Dashboard
@@ -269,6 +270,24 @@ export const en = {
     dismissed: 'Reminder dismissed',
     loadFailed: 'Failed to load reminders',
     actionFailed: 'Failed to process reminder',
+    // List page
+    noReminders: 'No reminders yet',
+    noRemindersDesc: 'Create a reminder to schedule future transactions.',
+    addReminder: 'Add reminder',
+    statusPending: 'Pending',
+    statusCompleted: 'Completed',
+    statusDismissed: 'Dismissed',
+    allStatuses: 'All statuses',
+    deleteConfirm: 'Are you sure you want to delete this reminder?',
+    deleteFailed: 'Failed to delete reminder',
+    // Form
+    addTitle: 'Add Reminder',
+    editTitle: 'Edit Reminder',
+    reminderDate: 'Reminder date',
+    reminderDateHint: 'When should this reminder appear?',
+    saveFailed: 'Failed to save reminder',
+    loadFormFailed: 'Failed to load form data',
+    saveChanges: 'Save Changes',
   },
 
   // Admin

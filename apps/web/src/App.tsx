@@ -19,6 +19,8 @@ import { AdminLayout } from '@/features/admin/AdminLayout';
 import { AdminUsersPage } from '@/features/admin/AdminUsersPage';
 import { AdminWorkspacesPage } from '@/features/admin/AdminWorkspacesPage';
 import { ReminderProvider } from '@/features/reminders/ReminderContext';
+import { RemindersPage } from '@/features/reminders/RemindersPage';
+import { ReminderForm } from '@/features/reminders/ReminderForm';
 
 export function App() {
   return (
@@ -58,6 +60,9 @@ export function App() {
                 <Route path="/transactions/:id/edit" element={<TransactionForm />} />
                 <Route path="/accounts" element={<AccountListPage />} />
                 <Route path="/categories" element={<CategoryListPage />} />
+                <Route path="/reminders" element={<RemindersPage />} />
+                <Route path="/reminders/new" element={<ReminderForm />} />
+                <Route path="/reminders/:id/edit" element={<ReminderForm />} />
                 <Route path="/budgets" element={<BudgetPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
               </Route>
