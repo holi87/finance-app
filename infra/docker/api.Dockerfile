@@ -27,9 +27,7 @@ COPY apps/api/ apps/api/
 # Generate Prisma client
 RUN pnpm --filter @budget-tracker/api run prisma:generate
 
-# Build shared packages first, then API
-RUN pnpm --filter @budget-tracker/shared-types run build 2>/dev/null || true
-RUN pnpm --filter @budget-tracker/shared-validation run build 2>/dev/null || true
+# Build API (shared-types is consumed as TS source via type-only imports)
 RUN pnpm --filter @budget-tracker/api run build
 
 # ---- Production stage ----
