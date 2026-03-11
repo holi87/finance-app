@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { api } from '@/services/api';
 import { useTranslation } from '@/i18n/I18nContext';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
@@ -36,6 +36,8 @@ interface UserEditData {
 
 export function AdminUsersPage() {
   const { t } = useTranslation();
+  const tRef = useRef(t);
+  tRef.current = t;
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -58,11 +60,11 @@ export function AdminUsersPage() {
       setUsers(data.items);
       setTotal(data.total);
     } catch {
-      setError(t.admin.loadFailed);
+      setError(tRef.current.admin.loadFailed);
     } finally {
       setIsLoading(false);
     }
-  }, [page, search, t.admin.loadFailed]);
+  }, [page, search]);
 
   useEffect(() => {
     loadUsers();
@@ -150,7 +152,7 @@ export function AdminUsersPage() {
                       <td className="px-4 py-3">
                         {u.isAdmin ? (
                           <span className="inline-flex rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700">
-                            Admin
+                            {t.admin.isAdmin}
                           </span>
                         ) : (
                           <span className="text-gray-400">—</span>

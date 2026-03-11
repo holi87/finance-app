@@ -6,8 +6,13 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('Seeding database...');
 
+  // Hash passwords in parallel
+  const [adminHash, userHash] = await Promise.all([
+    argon2.hash('admin123'),
+    argon2.hash('password123'),
+  ]);
+
   // Create admin user
-  const adminHash = await argon2.hash('admin123');
   const admin = await prisma.user.upsert({
     where: { email: 'admin@budget.app' },
     update: { isAdmin: true },
@@ -21,7 +26,6 @@ async function main() {
   console.log(`Admin user: ${admin.email} / admin123 (isAdmin=${admin.isAdmin})`);
 
   // Create test user (non-admin)
-  const userHash = await argon2.hash('password123');
   const user = await prisma.user.upsert({
     where: { email: 'test@example.com' },
     update: {},

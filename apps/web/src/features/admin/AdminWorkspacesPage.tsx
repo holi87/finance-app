@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { api } from '@/services/api';
 import { useTranslation } from '@/i18n/I18nContext';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
@@ -13,7 +13,6 @@ interface AdminWorkspace {
   archivedAt: string | null;
   createdAt: string;
   _count?: { memberships: number };
-  memberCount?: number;
 }
 
 interface WorkspacesResponse {
@@ -42,6 +41,8 @@ interface SimpleUser {
 
 export function AdminWorkspacesPage() {
   const { t } = useTranslation();
+  const tRef = useRef(t);
+  tRef.current = t;
   const [workspaces, setWorkspaces] = useState<AdminWorkspace[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -60,11 +61,11 @@ export function AdminWorkspacesPage() {
       setWorkspaces(data.items);
       setTotal(data.total);
     } catch {
-      setError(t.admin.loadFailed);
+      setError(tRef.current.admin.loadFailed);
     } finally {
       setIsLoading(false);
     }
-  }, [page, t.admin.loadFailed]);
+  }, [page]);
 
   useEffect(() => {
     loadWorkspaces();
@@ -109,7 +110,7 @@ export function AdminWorkspacesPage() {
                       <td className="px-4 py-3 capitalize text-gray-600">{ws.type}</td>
                       <td className="px-4 py-3 text-gray-600">{ws.baseCurrency}</td>
                       <td className="px-4 py-3 text-gray-600">
-                        {ws._count?.memberships ?? ws.memberCount ?? '—'}
+                        {ws._count?.memberships ?? '—'}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <button
@@ -172,6 +173,8 @@ function MembersPanel({
   onClose: () => void;
 }) {
   const { t } = useTranslation();
+  const tRef = useRef(t);
+  tRef.current = t;
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -185,11 +188,11 @@ function MembersPanel({
       );
       setMembers(data);
     } catch {
-      setError(t.admin.loadFailed);
+      setError(tRef.current.admin.loadFailed);
     } finally {
       setIsLoading(false);
     }
-  }, [workspace.id, t.admin.loadFailed]);
+  }, [workspace.id]);
 
   useEffect(() => {
     loadMembers();
@@ -294,7 +297,6 @@ function MembersPanel({
 
         {showAddModal && (
           <AddMemberModal
-            workspaceId={workspace.id}
             existingMemberIds={members.map((m) => m.userId)}
             onClose={() => setShowAddModal(false)}
             onSubmit={handleAddMember}
@@ -308,12 +310,10 @@ function MembersPanel({
 // --- Add Member Modal ---
 
 function AddMemberModal({
-  workspaceId: _workspaceId,
   existingMemberIds,
   onClose,
   onSubmit,
 }: {
-  workspaceId: string;
   existingMemberIds: string[];
   onClose: () => void;
   onSubmit: (userId: string, role: string) => Promise<void>;
@@ -344,7 +344,8 @@ function AddMemberModal({
       }
     }
     loadAllUsers();
-  }, [existingMemberIds, t.admin.loadFailed]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existingMemberIds]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -359,9 +360,6 @@ function AddMemberModal({
       setIsSaving(false);
     }
   }
-
-  // Suppress unused variable lint — workspaceId is used as a key prop indirectly
-  void _workspaceId;
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4">

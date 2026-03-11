@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { type MembershipRole } from '@budget-tracker/shared-types';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { AdminGuard } from '../../../common/guards/admin.guard';
 import { AdminService } from '../services/admin.service';
@@ -34,7 +35,7 @@ export class AdminWorkspacesController {
   @Post(':workspaceId/members')
   addMember(
     @Param('workspaceId') workspaceId: string,
-    @Body() body: { userId: string; role: string },
+    @Body() body: { userId: string; role: MembershipRole },
   ) {
     return this.adminService.addWorkspaceMember(workspaceId, body);
   }
@@ -42,7 +43,7 @@ export class AdminWorkspacesController {
   @Patch('members/:membershipId')
   updateMemberRole(
     @Param('membershipId') membershipId: string,
-    @Body() body: { role: string },
+    @Body() body: { role: MembershipRole },
   ) {
     return this.adminService.updateMemberRole(membershipId, body.role);
   }

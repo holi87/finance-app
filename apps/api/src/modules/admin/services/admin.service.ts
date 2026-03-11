@@ -3,8 +3,31 @@ import {
   NotFoundException,
   ConflictException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import * as argon2 from 'argon2';
+import { type MembershipRole } from '@budget-tracker/shared-types';
 import { PrismaService } from '../../../prisma/prisma.service';
+
+/** Reusable select for user summary fields. */
+const USER_BASE_SELECT = {
+  id: true,
+  email: true,
+  displayName: true,
+  isActive: true,
+  isAdmin: true,
+  createdAt: true,
+} as const satisfies Prisma.UserSelect;
+
+/** Reusable select for membership with user info. */
+const MEMBERSHIP_WITH_USER_SELECT = {
+  id: true,
+  role: true,
+  user: { select: { id: true, email: true, displayName: true } },
+} as const satisfies Prisma.MembershipSelect;
+
+function isPrismaNotFound(err: unknown): boolean {
+  return err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025';
+}
 
 @Injectable()
 export class AdminService {
@@ -33,12 +56,7 @@ export class AdminService {
         skip,
         take: pageSize,
         select: {
-          id: true,
-          email: true,
-          displayName: true,
-          isActive: true,
-          isAdmin: true,
-          createdAt: true,
+          ...USER_BASE_SELECT,
           lastLoginAt: true,
           _count: { select: { memberships: true } },
         },
@@ -53,12 +71,7 @@ export class AdminService {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
-        id: true,
-        email: true,
-        displayName: true,
-        isActive: true,
-        isAdmin: true,
-        createdAt: true,
+        ...USER_BASE_SELECT,
         lastLoginAt: true,
         memberships: {
           select: {
@@ -80,28 +93,26 @@ export class AdminService {
     displayName: string;
     isAdmin?: boolean;
   }) {
-    const existing = await this.prisma.user.findUnique({
-      where: { email: data.email },
-    });
-    if (existing) throw new ConflictException('Email already registered');
-
     const passwordHash = await argon2.hash(data.password);
-    return this.prisma.user.create({
-      data: {
-        email: data.email,
-        passwordHash,
-        displayName: data.displayName,
-        isAdmin: data.isAdmin ?? false,
-      },
-      select: {
-        id: true,
-        email: true,
-        displayName: true,
-        isActive: true,
-        isAdmin: true,
-        createdAt: true,
-      },
-    });
+    try {
+      return await this.prisma.user.create({
+        data: {
+          email: data.email,
+          passwordHash,
+          displayName: data.displayName,
+          isAdmin: data.isAdmin ?? false,
+        },
+        select: USER_BASE_SELECT,
+      });
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2002'
+      ) {
+        throw new ConflictException('Email already registered');
+      }
+      throw err;
+    }
   }
 
   async updateUser(
@@ -113,27 +124,22 @@ export class AdminService {
       password?: string;
     },
   ) {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
-
     const updateData: Record<string, unknown> = {};
     if (data.displayName !== undefined) updateData.displayName = data.displayName;
     if (data.isAdmin !== undefined) updateData.isAdmin = data.isAdmin;
     if (data.isActive !== undefined) updateData.isActive = data.isActive;
     if (data.password) updateData.passwordHash = await argon2.hash(data.password);
 
-    return this.prisma.user.update({
-      where: { id: userId },
-      data: updateData,
-      select: {
-        id: true,
-        email: true,
-        displayName: true,
-        isActive: true,
-        isAdmin: true,
-        createdAt: true,
-      },
-    });
+    try {
+      return await this.prisma.user.update({
+        where: { id: userId },
+        data: updateData,
+        select: USER_BASE_SELECT,
+      });
+    } catch (err) {
+      if (isPrismaNotFound(err)) throw new NotFoundException('User not found');
+      throw err;
+    }
   }
 
   // ── Workspaces ─────────────────────────────────
@@ -166,14 +172,14 @@ export class AdminService {
   async getWorkspaceMembers(workspaceId: string) {
     const workspace = await this.prisma.workspace.findUnique({
       where: { id: workspaceId },
+      select: { id: true, name: true },
     });
     if (!workspace) throw new NotFoundException('Workspace not found');
 
     const members = await this.prisma.membership.findMany({
       where: { workspaceId },
       select: {
-        id: true,
-        role: true,
+        ...MEMBERSHIP_WITH_USER_SELECT,
         createdAt: true,
         user: {
           select: { id: true, email: true, displayName: true, isActive: true },
@@ -182,66 +188,63 @@ export class AdminService {
       orderBy: { createdAt: 'asc' },
     });
 
-    return { workspace: { id: workspace.id, name: workspace.name }, members };
+    return { workspace, members };
   }
 
   async addWorkspaceMember(
     workspaceId: string,
-    data: { userId: string; role: string },
+    data: { userId: string; role: MembershipRole },
   ) {
-    const workspace = await this.prisma.workspace.findUnique({
-      where: { id: workspaceId },
-    });
+    // Workspace & user must exist; membership must not exist.
+    // We validate workspace and user up-front because the create would fail
+    // with a generic FK error otherwise, making poor error messages.
+    const [workspace, user] = await Promise.all([
+      this.prisma.workspace.findUnique({ where: { id: workspaceId }, select: { id: true } }),
+      this.prisma.user.findUnique({ where: { id: data.userId }, select: { id: true } }),
+    ]);
     if (!workspace) throw new NotFoundException('Workspace not found');
-
-    const user = await this.prisma.user.findUnique({
-      where: { id: data.userId },
-    });
     if (!user) throw new NotFoundException('User not found');
 
-    const existing = await this.prisma.membership.findUnique({
-      where: { workspaceId_userId: { workspaceId, userId: data.userId } },
-    });
-    if (existing) throw new ConflictException('User is already a member');
-
-    return this.prisma.membership.create({
-      data: {
-        workspaceId,
-        userId: data.userId,
-        role: data.role,
-      },
-      select: {
-        id: true,
-        role: true,
-        user: { select: { id: true, email: true, displayName: true } },
-      },
-    });
+    try {
+      return await this.prisma.membership.create({
+        data: {
+          workspaceId,
+          userId: data.userId,
+          role: data.role,
+        },
+        select: MEMBERSHIP_WITH_USER_SELECT,
+      });
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2002'
+      ) {
+        throw new ConflictException('User is already a member');
+      }
+      throw err;
+    }
   }
 
-  async updateMemberRole(membershipId: string, role: string) {
-    const membership = await this.prisma.membership.findUnique({
-      where: { id: membershipId },
-    });
-    if (!membership) throw new NotFoundException('Membership not found');
-
-    return this.prisma.membership.update({
-      where: { id: membershipId },
-      data: { role },
-      select: {
-        id: true,
-        role: true,
-        user: { select: { id: true, email: true, displayName: true } },
-      },
-    });
+  async updateMemberRole(membershipId: string, role: MembershipRole) {
+    try {
+      return await this.prisma.membership.update({
+        where: { id: membershipId },
+        data: { role },
+        select: MEMBERSHIP_WITH_USER_SELECT,
+      });
+    } catch (err) {
+      if (isPrismaNotFound(err)) throw new NotFoundException('Membership not found');
+      throw err;
+    }
   }
 
   async removeMember(membershipId: string) {
-    const membership = await this.prisma.membership.findUnique({
-      where: { id: membershipId },
-    });
-    if (!membership) throw new NotFoundException('Membership not found');
-
-    await this.prisma.membership.delete({ where: { id: membershipId } });
-    return { success: true };
+    try {
+      await this.prisma.membership.delete({ where: { id: membershipId } });
+      return { success: true };
+    } catch (err) {
+      if (isPrismaNotFound(err)) throw new NotFoundException('Membership not found');
+      throw err;
+    }
   }
 }
