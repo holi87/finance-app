@@ -2,10 +2,10 @@
 set -e
 
 echo "Running database migrations..."
-./node_modules/.bin/prisma migrate deploy --schema=apps/api/prisma/schema.prisma
+pnpm --filter @budget-tracker/api exec prisma migrate deploy
 
 echo "Running database seed..."
-./node_modules/.bin/tsx apps/api/prisma/seed.ts || echo "Seed skipped (may already be seeded)"
+pnpm exec tsx apps/api/prisma/seed.ts || echo "Seed skipped (may already be seeded)"
 
 echo "Starting API server..."
 exec node apps/api/dist/main.js
