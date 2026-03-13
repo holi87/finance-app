@@ -13,7 +13,7 @@ export function AdminLayout() {
   return (
     <div className="min-h-dvh bg-gray-50">
       {/* Top header */}
-      <header className="border-b border-gray-200 bg-white">
+      <header className="border-b border-gray-200 bg-white" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
           <h1 className="text-lg font-bold text-gray-900">{t.admin.title}</h1>
           <NavLink
