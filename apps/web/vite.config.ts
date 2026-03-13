@@ -15,7 +15,7 @@ export default defineConfig({
         name: 'Budget Tracker',
         short_name: 'Budget',
         description: 'Offline-first budget management application',
-        theme_color: '#3b82f6',
+        theme_color: '#ffffff',
         background_color: '#ffffff',
         display: 'standalone',
         scope: '/',

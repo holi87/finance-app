@@ -91,7 +91,10 @@ export function AppLayout() {
       {/* Main content area */}
       <div className="flex flex-1 flex-col">
         {/* Mobile top bar */}
-        <header className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 lg:hidden">
+        <header
+          className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 lg:hidden"
+          style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.75rem)' }}
+        >
           <WorkspaceSwitcher />
           <SyncBadge />
         </header>

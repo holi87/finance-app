@@ -92,6 +92,11 @@ The app will be available on the port set by `APP_PORT` in `.env` (default: 8620
 
 ## Changelog
 
+### v0.10.1 — PWA safe area fix
+- Add safe-area-inset-top padding to mobile header so iPhone status bar doesn't overlap workspace switcher and sync badge
+- Change PWA status bar style from black-translucent to default for cleaner white header appearance
+- Update theme_color to white to match header background
+
 ### v0.10.0 — Admin fixes & Reminder system
 - Fix admin workspace member management (response shape mismatch)
 - Admin user deactivation (soft-delete via isActive=false)
